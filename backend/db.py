@@ -12,9 +12,9 @@ try:
     client = MongoClient(MONGO_URI)
     # teste de conexão
     client.admin.command("ping")
-    print("✅ Conexão com MongoDB Atlas bem-sucedida!")
+    print("Conexão com MongoDB Atlas bem-sucedida!")
 except Exception as e:
-    print("❌ Erro ao conectar no MongoDB:", e)
+    print("Erro ao conectar no MongoDB:", e)
 
 db = client[DB_NAME]
 users_coll = db["users"]
