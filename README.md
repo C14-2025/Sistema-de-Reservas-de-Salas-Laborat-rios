@@ -1,1 +1,1 @@
-# Sistema-de-Reservas-de-Salas-Laborat-rios
+# Sistema-de-Reservas-de-Salas/Laboratorios
