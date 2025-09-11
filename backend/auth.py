@@ -1,6 +1,8 @@
 # backend/auth.py
 from db import users_coll
 from passlib.context import CryptContext
+from db import users_coll
+
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -19,3 +21,17 @@ def create_user(email: str, password: str) -> dict:
     user = {"email": email, "password": hashed}
     users_coll.insert_one(user)
     return user
+
+# Autenticação de usuário
+def authenticate_user(email: str, password: str) -> dict | None:
+    user = users_coll.find_one({"email": email})
+    if not user:
+        return None
+    if not verify_password(password, user["password"]):
+        return None
+    return user
+
+#
+def delete_user(email: str) -> bool:
+    result = users_coll.delete_one({"email": email})
+    return result.deleted_count > 0
