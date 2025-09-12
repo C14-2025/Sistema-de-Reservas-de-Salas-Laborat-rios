@@ -3,8 +3,8 @@ import os
 
 MONGO_URI = os.getenv(
     "MONGO_URI",
-    
-    "mongodb+srv://rm:7OVHYULulWKZuBfD@cluster0.qqpv0z8.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+
+    "mongodb+srv://teste_user:Lucas123*@cluster0.sgaa8y8.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 )
 DB_NAME = os.getenv("db", "users")
 
