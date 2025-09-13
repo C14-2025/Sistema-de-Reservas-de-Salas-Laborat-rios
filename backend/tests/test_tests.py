@@ -4,7 +4,7 @@ import pytest
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../backend')))
 
-from auth import hash_password, create_user, users_coll
+from backend.app.utils.auth import hash_password, create_user, users_coll
 
 @pytest.fixture(autouse=True)
 def clear_db():
