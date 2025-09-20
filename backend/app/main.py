@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from .database.db import connect_to_mongo, close_connection_to_mongo
 from .routes.auth import router as auth_router
+from .routes.lab import router as lab_router
 
 
 @asynccontextmanager
@@ -33,6 +34,7 @@ app.add_middleware(
 )
 
 app.include_router(auth_router)
+app.include_router(lab_router)
 
 if __name__ == "__main__":
     import uvicorn

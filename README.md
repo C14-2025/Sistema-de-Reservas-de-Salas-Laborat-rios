@@ -35,7 +35,7 @@ DB_NAME=db
 
 ```bash
 cd backend
-python -m app.main.py
+python -m app.main
 ```
 
 ## 🌐 Uso
