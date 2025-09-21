@@ -26,15 +26,17 @@ def clear_db():
     labs_coll.delete_many({})
 
 # Teste: cadastro de usuário válido
-def test_create_user():
+def test_create_user_with_mock(mocker):
+    fake_coll = MagicMock()
+    mocker.patch("your_module.get_users_collection", return_value=fake_coll)
+
     email = "teste@example.com"
     password = "123456"
     create_user(email, password)
 
-    users_coll = get_users_collection()
-    db_user = users_coll.find_one({"email": email})
-    assert db_user is not None
-    assert db_user["email"] == email
+    fake_coll.insert_one.assert_called_once()
+    args, kwargs = fake_coll.insert_one.call_args
+    assert kwargs["email"] == email
 
 # Teste: cadastro com email duplicado
 def test_duplicate_email():
