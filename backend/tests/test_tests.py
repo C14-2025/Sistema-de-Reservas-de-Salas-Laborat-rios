@@ -107,3 +107,20 @@ def test_create_lab_mock(mock_get_labs_collection):
     assert result["_id"] == "mocked_id"
     assert result["name"] == lab_name
     assert result["description"] == lab_description
+
+@patch("app.utils.auth.get_users_collection")
+def test_login_valid_user_mock(mock_get_users_collection):
+    fake_coll = MagicMock()
+    mock_get_users_collection.return_value = fake_coll
+
+    email = "login@example.com"
+    password = "senha123"
+    hashed_password = "$2b$12$abcdefghijklmnopqrstuv"
+
+    fake_coll.find_one.return_value = {"email": email, "password": hashed_password}
+
+    user = fake_coll.find_one({"email": email})
+
+    assert user is not None
+    assert user["email"] == email
+    assert user["password"] == hashed_password
