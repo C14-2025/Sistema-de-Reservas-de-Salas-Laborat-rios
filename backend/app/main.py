@@ -4,6 +4,7 @@ from contextlib import asynccontextmanager
 from .database.db import connect_to_mongo, close_connection_to_mongo
 from .routes.auth import router as auth_router
 from .routes.lab import router as lab_router
+from .routes.reservation import router as reservation_router
 
 
 @asynccontextmanager
@@ -40,3 +41,5 @@ if __name__ == "__main__":
     import uvicorn
 
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
+app.include_router(reservation_router)
