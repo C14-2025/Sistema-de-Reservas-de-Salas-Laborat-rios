@@ -32,6 +32,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.get("/")
+def read_root():
+    return {"message": "API do Sistema de Reservas funcionando!"}
+
+
 app.include_router(auth_router)
 
 if __name__ == "__main__":

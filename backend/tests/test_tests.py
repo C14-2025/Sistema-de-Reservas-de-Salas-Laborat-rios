@@ -5,6 +5,9 @@ import asyncio
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
 
+from fastapi.testclient import TestClient
+from backend.app.main import app  # importa o app FastAPI principal
+
 from backend.app.utils.auth import hash_password, create_user, verify_password
 from backend.app.database.db import connect_to_mongo, close_connection_to_mongo, get_users_collection
 
@@ -97,3 +100,10 @@ def test_get_all_users_excludes_password():
         assert "password" not in user  # senha não deve estar exposta
         assert "email" in user
 
+client = TestClient(app)
+
+def test_root_route():
+    """Verifica se a rota raiz '/' responde corretamente"""
+    response = client.get("/")
+    assert response.status_code == 200
+    assert "message" in response.json() or "detail" in response.json()
