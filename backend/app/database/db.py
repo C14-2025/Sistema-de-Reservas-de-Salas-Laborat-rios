@@ -1,8 +1,15 @@
 from dotenv import load_dotenv
+from pathlib import Path
 from pymongo import MongoClient
 import os
 
-load_dotenv()
+# Caminho até o .env que está uma pasta acima
+env_path = Path(__file__).resolve().parent.parent.parent / ".env"
+load_dotenv(dotenv_path=env_path)
+
+print("DEBUG - .env carregado de:", env_path)
+print("DEBUG - MONGO_URI:", os.getenv("MONGO_URI"))
+print("DEBUG - DB_NAME:", os.getenv("DB_NAME"))
 
 MONGO_URI = os.getenv("MONGO_URI")
 DB_NAME = os.getenv("DB_NAME", "db")
@@ -19,8 +26,11 @@ async def connect_to_mongo():
         client.admin.command("ping")
         db = client[DB_NAME]
         users_coll = db["users"]
+
+        print("✅ Conectado ao MongoDB com sucesso!")
         return True
     except Exception as e:
+        print("❌ Erro ao conectar no MongoDB:", e)
         return False
 
 
