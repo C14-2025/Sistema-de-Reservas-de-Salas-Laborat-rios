@@ -16,8 +16,14 @@ function Login() {
 
       const data = await res.json();
 
-      if (res.ok) setMessage(data.message);
-      else setMessage(data.detail || "Erro no login");
+      if (res.ok) {
+        setMessage(data.message);
+        setTimeout(() => {
+          window.location.href = "/reservation";
+        }, 1000);
+      } else {
+        setMessage(data.detail || "Erro no login");
+      }
     } catch {
       setMessage("Erro na conexão com a API");
     }
