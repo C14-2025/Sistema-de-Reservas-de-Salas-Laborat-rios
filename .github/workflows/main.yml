@@ -9,7 +9,6 @@ on:
   pull_request:
 
 jobs:
-  # BANCO DE DADOS MONGO
   setup-mongo:
     name: Configurar e validar MongoDB
     runs-on: ubuntu-latest
@@ -26,6 +25,13 @@ jobs:
           --health-retries=5
 
     steps:
+      - name: Instalar mongosh
+        run: |
+          curl -fsSL https://pgp.mongodb.com/server-6.0.asc | sudo gpg -o /usr/share/keyrings/mongodb-server-6.0.gpg --dearmor
+          echo "deb [ signed-by=/usr/share/keyrings/mongodb-server-6.0.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/6.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-6.0.list
+          sudo apt-get update
+          sudo apt-get install -y mongodb-mongosh
+
       - name: Esperar MongoDB iniciar
         run: sleep 15
 
@@ -35,8 +41,6 @@ jobs:
           mongosh --eval "db.runCommand({ ping: 1 })"
           echo "✅ Conexão com MongoDB estabelecida com sucesso."
 
-
-  # BACKEND TESTS
   test-backend:
     name: Testar backend com Python ${{ matrix.python-version }}
     runs-on: ubuntu-latest
@@ -79,13 +83,11 @@ jobs:
           echo "DB_NAME=db" >> .env
 
       - name: Rodar testes com pytest
+        working-directory: ./backend
         env:
           PYTHONPATH: .
-        run: |
-          pytest backend -v
+        run: pytest -v
 
-
-  # FRONTEND LINT
   lint-frontend:
     name: Lint frontend (TypeScript/TSX)
     runs-on: ubuntu-latest
@@ -102,8 +104,7 @@ jobs:
 
       - name: Instalar dependências frontend
         working-directory: ./frontend
-        run: |
-          npm install
+        run: npm install
 
       - name: Criar tsconfig temporário para evitar falhas
         working-directory: ./frontend
