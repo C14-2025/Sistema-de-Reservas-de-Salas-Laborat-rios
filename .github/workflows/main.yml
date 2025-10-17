@@ -9,10 +9,38 @@ on:
   pull_request:
 
 jobs:
+  # BANCO DE DADOS MONGO
+  setup-mongo:
+    name: Configurar e validar MongoDB
+    runs-on: ubuntu-latest
+
+    services:
+      mongo:
+        image: mongo:6.0
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd="mongosh --eval 'db.runCommand({ ping: 1 })'"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - name: Esperar MongoDB iniciar
+        run: sleep 15
+
+      - name: Testar conexão com MongoDB
+        run: |
+          echo "Verificando conexão com MongoDB..."
+          mongosh --eval "db.runCommand({ ping: 1 })"
+          echo "✅ Conexão com MongoDB estabelecida com sucesso."
+
+
   # BACKEND TESTS
   test-backend:
     name: Testar backend com Python ${{ matrix.python-version }}
     runs-on: ubuntu-latest
+    needs: setup-mongo
 
     strategy:
       matrix:
@@ -56,7 +84,8 @@ jobs:
         run: |
           pytest backend -v
 
-  # FRONTEND LINT 
+
+  # FRONTEND LINT
   lint-frontend:
     name: Lint frontend (TypeScript/TSX)
     runs-on: ubuntu-latest
