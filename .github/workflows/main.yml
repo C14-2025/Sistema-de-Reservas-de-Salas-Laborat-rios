@@ -83,13 +83,13 @@ jobs:
           echo "DB_NAME=db" >> .env
 
       - name: Rodar testes com pytest
-        
+        working-directory: ./backend
         env:
           PYTHONPATH: .
         run: pytest -v
 
   lint-frontend:
-    name: Lint frontend (TypeScript/TSX)
+    name: Lint e build do frontend (TypeScript/TSX)
     runs-on: ubuntu-latest
     needs: test-backend
 
@@ -129,3 +129,10 @@ jobs:
         working-directory: ./frontend
         run: |
           npx eslint . --ext .ts,.tsx,.jsx --max-warnings=0 || true
+
+      - name: Rodar build do frontend
+        working-directory: ./frontend
+        run: |
+          echo " Iniciando build do frontend..."
+          npm run build
+          echo " Build do frontend concluído com sucesso."
