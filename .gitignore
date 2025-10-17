@@ -1,11 +1,15 @@
-# Environment variables
+# ========================
+# Environment Variables
+# ========================
 .env
 .env.local
 .env.development
 .env.production
 .env.test
 
+# ========================
 # Python
+# ========================
 __pycache__/
 *.py[cod]
 *$py.class
@@ -33,12 +37,79 @@ venv/
 env/
 ENV/
 
-# IDE
+# ========================
+# Node / React
+# ========================
+# dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# production
+build/
+dist/
+
+# misc
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# testing
+coverage/
+*.lcov
+
+# IDEs and editors
 .vscode/
 .idea/
 *.swp
 *.swo
+*.sublime-project
+*.sublime-workspace
 
 # OS
 .DS_Store
 Thumbs.db
+
+# ========================
+# Logs and temp files
+# ========================
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+tmp/
+temp/
+.cache/
+.parcel-cache/
+.eslintcache
+.stylelintcache
+
+# ========================
+# Optional (if using tools)
+# ========================
+# TypeScript
+*.tsbuildinfo
+
+# Storybook
+.out/
+storybook-static/
+
+# VS Code local settings
+.vscode/
+
+# JetBrains
+.idea/
+
+# Mac system files
+.DS_Store
+.AppleDouble
+.LSOverride
