@@ -83,7 +83,7 @@ jobs:
           echo "DB_NAME=db" >> .env
 
       - name: Rodar testes com pytest
-        working-directory: ./backend
+        
         env:
           PYTHONPATH: .
         run: pytest -v
