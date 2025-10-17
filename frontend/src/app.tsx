@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Login from "./components/Login";
 import Register from "./components/Register";
-import Reservation from "./components/reservation"
+import Reservation from "./components/reservation";
 
 function App() {
   const [showLogin, setShowLogin] = useState(true);
