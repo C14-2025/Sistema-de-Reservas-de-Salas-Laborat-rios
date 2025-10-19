@@ -9,6 +9,37 @@ on:
   pull_request:
 
 jobs:
+  setup-mongo:
+    name: Configurar e validar MongoDB
+    runs-on: ubuntu-latest
+
+    services:
+      mongo:
+        image: mongo:6.0
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd="mongosh --eval 'db.runCommand({ ping: 1 })'"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - name: Instalar mongosh
+        run: |
+          curl -fsSL https://pgp.mongodb.com/server-6.0.asc | sudo gpg -o /usr/share/keyrings/mongodb-server-6.0.gpg --dearmor
+          echo "deb [ signed-by=/usr/share/keyrings/mongodb-server-6.0.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/6.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-6.0.list
+          sudo apt-get update
+          sudo apt-get install -y mongodb-mongosh
+
+      - name: Esperar MongoDB iniciar
+        run: sleep 15
+
+      - name: Testar conexão com MongoDB
+        run: |
+          echo "Verificando conexão com MongoDB..."
+          mongosh --eval "db.runCommand({ ping: 1 })"
+          echo "✅ Conexão com MongoDB estabelecida com sucesso."
   # Backend tests
   test-backend:
     name: Testar backend com Python ${{ matrix.python-version }}
