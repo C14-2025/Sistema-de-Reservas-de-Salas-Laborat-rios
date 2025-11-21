@@ -4,7 +4,7 @@ from pymongo import MongoClient
 import os
 
 # Caminho até o .env que está uma pasta acima
-env_path = Path(__file__).resolve().parent.parent.parent / ".env"
+env_path = Path(__file__).resolve().parent.parent.parent.parent / ".env"
 load_dotenv(dotenv_path=env_path)
 
 print("DEBUG - .env carregado de:", env_path)
@@ -18,9 +18,10 @@ client = None
 db = None
 users_coll = None
 labs_coll = None
+reservations_coll = None
 
 async def connect_to_mongo():
-    global client, db, users_coll, labs_coll
+    global client, db, users_coll, labs_coll, reservations_coll
     try:
         client = MongoClient(MONGO_URI)
         client.admin.command("ping")
@@ -48,22 +49,24 @@ async def close_connection_to_mongo():
 
 
 def get_database():
-    global db
     if db is None:
         raise Exception("❌ Conexão com banco de dados não encontrado")
     return db
 
 
 def get_users_collection():
-    global users_coll
     if users_coll is None:
-        raise Exception("❌ Conexão com banco de dados não encontrado")
+        raise Exception("❌ Users_coll não inicializado")
     return users_coll
 
 def get_labs_collection():
-    global labs_coll
     if labs_coll is None:
         if db is None:
-            raise Exception("❌ Conexão com banco de dados não encontrado")
+            raise Exception("❌ Labs_coll não inicializado")
     return labs_coll
 
+def get_reservations_collection():
+    if reservations_coll is None:
+        if db is None:
+            raise Exception("❌ Reservations_coll não inicializado")
+    return reservations_coll
