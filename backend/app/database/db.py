@@ -2,7 +2,17 @@ from dotenv import load_dotenv
 from pymongo import MongoClient
 import os
 
+<<<<<<< Updated upstream
 load_dotenv()
+=======
+# Caminho até o .env que está uma pasta acima
+env_path = Path(__file__).resolve().parent.parent.parent / ".env"
+load_dotenv(dotenv_path=env_path)
+
+print("DEBUG - .env carregado de:", env_path)
+print("DEBUG - MONGO_URI:", os.getenv("MONGO_URI"))
+print("DEBUG - DB_NAME:", os.getenv("DB_NAME"))
+>>>>>>> Stashed changes
 
 MONGO_URI = os.getenv("MONGO_URI")
 DB_NAME = os.getenv("DB_NAME", "db")
