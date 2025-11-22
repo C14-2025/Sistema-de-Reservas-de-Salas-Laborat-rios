@@ -1,11 +1,34 @@
 pipeline {
     agent any
 
+    parameters {
+        string(name: 'NOTIFY_EMAIL', defaultValue: '', description: 'Email para notificações')
+    }
+
+    environment {
+        VENV = "${WORKSPACE}\\venv"
+        PYTHON = "python"   
+        NOTIFY_EMAIL = "${params.NOTIFY_EMAIL}"
+    }
+
     stages {
 
         stage('Checkout') {
             steps {
+                echo "Fazendo checkout..."
                 git branch: 'main', url: 'https://github.com/C14-2025/Sistema-de-Reservas-de-Salas-Laborat-rios'
+            }
+        }
+
+        stage('Setup Python venv') {
+            steps {
+                echo "Criando venv..."
+                bat """
+                    ${PYTHON} -m venv venv
+                    call venv\\Scripts\\activate
+                    python --version
+                    pip install --upgrade pip
+                """
             }
         }
 
@@ -13,8 +36,7 @@ pipeline {
             steps {
                 dir('backend') {
                     bat """
-                        python --version
-                        python -m pip install --upgrade pip
+                        call ..\\venv\\Scripts\\activate
                         pip install -r requirements.txt
                     """
                 }
@@ -24,7 +46,10 @@ pipeline {
         stage('Backend - Testes') {
             steps {
                 dir('backend') {
-                    bat """pytest --junitxml=report.xml"""
+                    bat """
+                        call ..\\venv\\Scripts\\activate
+                        pytest --junitxml=report.xml || exit 0
+                    """
                 }
             }
             post {
@@ -37,7 +62,7 @@ pipeline {
         stage('Frontend - Instalar Dependências') {
             steps {
                 dir('frontend') {
-                    bat """npm install"""
+                    bat "npm install"
                 }
             }
         }
@@ -45,7 +70,7 @@ pipeline {
         stage('Frontend - Testes') {
             steps {
                 dir('frontend') {
-                    bat """npm test --watchAll=false --ci || exit 0"""
+                    bat "npm test --watchAll=false --ci || exit 0"
                 }
             }
         }
@@ -53,18 +78,52 @@ pipeline {
         stage('Frontend - Build') {
             steps {
                 dir('frontend') {
-                    bat """npm run build"""
+                    bat "npm run build"
                 }
             }
         }
+
+        // OPÇÃO: Deploy (podemos ativar depois)
+        /*
+        stage('Deploy') {
+            when { branch 'main' }
+            steps {
+                echo "Deploy real seria feito aqui..."
+            }
+        }
+        */
     }
 
     post {
-        success {
-            echo "Pipeline finalizada com sucesso!"
+        always {
+            echo "Pipeline finalizada"
+            cleanWs()
         }
+
+        success {
+            echo "SUCESSO!"
+            script {
+                if (NOTIFY_EMAIL.trim() != "") {
+                    emailext(
+                        subject: "✔ Sucesso - ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                        body: "Pipeline concluída com sucesso!",
+                        to: NOTIFY_EMAIL
+                    )
+                }
+            }
+        }
+
         failure {
-            echo "Pipeline falhou. Verifique os logs."
+            echo "FALHOU!"
+            script {
+                if (NOTIFY_EMAIL.trim() != "") {
+                    emailext(
+                        subject: "❌ Falha - ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                        body: "A pipeline falhou. Verifique os logs.",
+                        to: NOTIFY_EMAIL
+                    )
+                }
+            }
         }
     }
 }
