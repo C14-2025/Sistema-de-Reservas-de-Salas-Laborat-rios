@@ -7,9 +7,7 @@ from ..utils.reservation import (
     get_reservation_by_id,
     check_availability,
 )
-
 router = APIRouter(prefix="/reservations", tags=["Reservas"])
-
 
 @router.post("/", response_model=ReservationResponse, status_code=status.HTTP_201_CREATED)
 def create_new_reservation(reservation: ReservationCreate):
@@ -45,7 +43,6 @@ def create_new_reservation(reservation: ReservationCreate):
             detail=f"Erro interno: {str(e)}",
         )
 
-
 @router.get("/", response_model=list[ReservationOut])
 def list_all_reservations():
     try:
@@ -55,6 +52,7 @@ def list_all_reservations():
                 id=r["_id"],
                 user_email=r["user_email"],
                 lab_id=r["lab_id"],
+                lab_name=r.get("lab_name"),
                 date=r["date"],
                 start_time=r["start_time"],
                 end_time=r["end_time"],
@@ -65,7 +63,6 @@ def list_all_reservations():
         return formatted
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
 
 @router.get("/user/{email}", response_model=list[ReservationOut])
 def list_reservations_by_user(email: str):
@@ -76,6 +73,7 @@ def list_reservations_by_user(email: str):
                 id=r["_id"],
                 user_email=r["user_email"],
                 lab_id=r["lab_id"],
+                lab_name=r.get("lab_name"),
                 date=r["date"],
                 start_time=r["start_time"],
                 end_time=r["end_time"],
@@ -86,7 +84,6 @@ def list_reservations_by_user(email: str):
         return formatted
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
 
 @router.get("/{reservation_id}", response_model=ReservationOut)
 def get_reservation(reservation_id: str):
@@ -99,6 +96,7 @@ def get_reservation(reservation_id: str):
             id=reservation["_id"],
             user_email=reservation["user_email"],
             lab_id=reservation["lab_id"],
+            lab_name=reservation.get("lab_name"),
             date=reservation["date"],
             start_time=reservation["start_time"],
             end_time=reservation["end_time"],

@@ -23,13 +23,22 @@ reservations_coll = None
 async def connect_to_mongo():
     global client, db, users_coll, labs_coll, reservations_coll
     try:
+        print("DEBUG - Loading MongoDB connection...")
+        print("DEBUG - MONGO_URI:", MONGO_URI)
+        print("DEBUG - DB_NAME:", DB_NAME)
+
         client = MongoClient(MONGO_URI)
         client.admin.command("ping")
         db = client[DB_NAME]
 
+        print("DEBUG - Databases in cluster:", client.list_database_names())
+        print("DEBUG - Collections inside DB_NAME:", db.list_collection_names())
+
         users_coll = db["users"]
         labs_coll = db["labs"]
         reservations_coll = db["reservations"]
+
+        print("DEBUG - Labs collection reference:", labs_coll)
 
         print("✅ Conectado ao MongoDB com sucesso!")
 

@@ -25,9 +25,10 @@ async def register_lab(lab: LabRegister):
         )
 
         return LabRegisterResponse(
-            id=new_lab["_id"],
+            id=str(new_lab["_id"]),
             name=new_lab["name"],
-            description=new_lab.get("description")
+            description=new_lab.get("description"),
+            message="Laboratório registrado com sucesso"
         )
     
     except HTTPException:
