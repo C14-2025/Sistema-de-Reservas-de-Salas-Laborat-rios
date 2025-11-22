@@ -21,7 +21,7 @@ pipeline {
 
         stage('Checkout') {
             steps {
-                git branch: 'refactor/global',
+                git branch: 'main',
                     url: 'https://github.com/C14-2025/Sistema-de-Reservas-de-Salas-Laborat-rios'
             }
         }
