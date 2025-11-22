@@ -7,7 +7,7 @@ pipeline {
 
     environment {
         VENV = "${WORKSPACE}\\venv"
-        PYTHON = "python"   
+        PYTHON = "python"  // Certifique que o python está no PATH do Jenkins
         NOTIFY_EMAIL = "${params.NOTIFY_EMAIL}"
     }
 
@@ -22,34 +22,24 @@ pipeline {
 
         stage('Setup Python venv') {
             steps {
-                echo "Criando venv..."
-                bat """
-                    ${PYTHON} -m venv venv
-                    call venv\\Scripts\\activate
-                    python --version
-                    pip install --upgrade pip
-                """
+                echo "Criando venv e atualizando pip..."
+                bat "${PYTHON} -m venv venv"
+                bat "venv\\Scripts\\python.exe -m pip install --upgrade pip"
             }
         }
 
         stage('Backend - Instalar Dependências') {
             steps {
-                dir('backend') {
-                    bat """
-                        call ..\\venv\\Scripts\\activate
-                        pip install -r requirements.txt
-                    """
-                }
+                echo "Instalando dependências do backend..."
+                bat "venv\\Scripts\\python.exe -m pip install -r backend\\requirements.txt"
             }
         }
 
         stage('Backend - Testes') {
             steps {
+                echo "Executando testes do backend..."
                 dir('backend') {
-                    bat """
-                        call ..\\venv\\Scripts\\activate
-                        pytest --junitxml=report.xml || exit 0
-                    """
+                    bat "..\\venv\\Scripts\\python.exe -m pytest --junitxml=report.xml || exit 0"
                 }
             }
             post {
@@ -61,6 +51,7 @@ pipeline {
 
         stage('Frontend - Instalar Dependências') {
             steps {
+                echo "Instalando dependências do frontend..."
                 dir('frontend') {
                     bat "npm install"
                 }
@@ -69,6 +60,7 @@ pipeline {
 
         stage('Frontend - Testes') {
             steps {
+                echo "Executando testes do frontend..."
                 dir('frontend') {
                     bat "npm test --watchAll=false --ci || exit 0"
                 }
@@ -77,13 +69,14 @@ pipeline {
 
         stage('Frontend - Build') {
             steps {
+                echo "Gerando build do frontend..."
                 dir('frontend') {
                     bat "npm run build"
                 }
             }
         }
 
-        // OPÇÃO: Deploy (podemos ativar depois)
+        // Deploy opcional
         /*
         stage('Deploy') {
             when { branch 'main' }
