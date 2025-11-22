@@ -1,32 +1,14 @@
 pipeline {
     agent any
 
-    tools {
-        nodejs "node18"
-    }
-
     stages {
-
-        stage('Setup Python') {
-            steps {
-                script {
-                    def pythonHome = tool name: 'python3.10', type: 'jenkins.plugins.shiningpanda.tools.PythonInstallation'
-                    echo "Python carregado em: ${pythonHome}"
-
-                    
-                    env.PATH = "${pythonHome};${pythonHome}\\Scripts;${env.PATH}"
-                }
-            }
-        }
 
         stage('Checkout') {
             steps {
-                git branch: 'main',
-                    url: 'https://github.com/C14-2025/Sistema-de-Reservas-de-Salas-Laborat-rios'
+                git branch: 'main', url: 'https://github.com/C14-2025/Sistema-de-Reservas-de-Salas-Laborat-rios'
             }
         }
 
-        // BACKEND -------------------------------------
         stage('Backend - Instalar Dependências') {
             steps {
                 dir('backend') {
@@ -42,7 +24,7 @@ pipeline {
         stage('Backend - Testes') {
             steps {
                 dir('backend') {
-                    bat "pytest --junitxml=report.xml || exit /b 0"
+                    bat """pytest --junitxml=report.xml"""
                 }
             }
             post {
@@ -52,11 +34,10 @@ pipeline {
             }
         }
 
-        // FRONTEND -------------------------------------
         stage('Frontend - Instalar Dependências') {
             steps {
                 dir('frontend') {
-                    bat "npm install"
+                    bat """npm install"""
                 }
             }
         }
@@ -64,7 +45,7 @@ pipeline {
         stage('Frontend - Testes') {
             steps {
                 dir('frontend') {
-                    bat "npm test --watchAll=false --ci || exit /b 0"
+                    bat """npm test --watchAll=false --ci || exit 0"""
                 }
             }
         }
@@ -72,7 +53,7 @@ pipeline {
         stage('Frontend - Build') {
             steps {
                 dir('frontend') {
-                    bat "npm run build"
+                    bat """npm run build"""
                 }
             }
         }
@@ -83,7 +64,7 @@ pipeline {
             echo "Pipeline finalizada com sucesso!"
         }
         failure {
-            echo "Pipeline falhou, verifique os logs."
+            echo "Pipeline falhou. Verifique os logs."
         }
     }
 }
