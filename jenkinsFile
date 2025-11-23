@@ -37,21 +37,27 @@ pipeline {
         }
 
         stage('Backend - Testes') {
-            steps {
-                dir('backend') {
-                    sh '''
-                        . ../venv/bin/activate
-                        export PYTHONPATH=$PYTHONPATH:$(pwd)
-                        pytest --junitxml=report.xml || true
-                    '''
-                }
-            }
-            post {
-                always {
-                    junit 'backend/report.xml'
-                }
-            }
+    steps {
+        dir('backend') {
+            sh '''
+                . ../venv/bin/activate
+                export PYTHONPATH=$PYTHONPATH:$(pwd)
+
+                # Garantir diretório para o relatório
+                mkdir -p reports
+
+                # Rodar pytest gerando relatório sempre no mesmo lugar
+                pytest --junitxml=reports/test-results.xml || true
+            '''
         }
+    }
+    post {
+        always {
+            junit 'backend/reports/test-results.xml'
+        }
+    }
+}
+
 
         stage('Frontend - Instalar Dependências') {
             steps {
