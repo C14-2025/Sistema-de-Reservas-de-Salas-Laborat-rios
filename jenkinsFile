@@ -30,7 +30,8 @@ pipeline {
         dir("backend") {
             echo "Testing Backend"
             sh '''
-                source venv/bin/activate
+                python3 -m venv venv
+                 . venv/bin/activate
                 pytest tests/ --maxfail=1 --disable-warnings -q
             '''
         }
