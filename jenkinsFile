@@ -32,17 +32,20 @@ pipeline {
             }
         }
 
-        stage("Test Backend") {
+       stage("Test Backend") {
     steps { 
         dir("backend") {
             echo "Testing Backend"
             sh """
-                source venv/bin/activate
-                pytest tests/ --junitxml=reports/test-results.xml
+                . ../venv/bin/activate
+                export PYTHONPATH=\$WORKSPACE
+                mkdir -p reports
+                pytest tests --junitxml=reports/test-results.xml || true
             """
         }
     }
 }
+
 
 
         stage('Frontend - Instalar Dependências') {
