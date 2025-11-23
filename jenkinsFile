@@ -26,16 +26,17 @@ pipeline {
         }
 
         stage('Test Backend') {
-            steps { 
-                dir('backend') {
-                    echo "Executando testes do Backend"
-                    sh '''
-                        . venv/bin/activate
-                        pytest tests/ --maxfail=1 --disable-warnings -q
-                    '''
-                }
-            }
+    steps { 
+        dir("backend") {
+            echo "Testing Backend"
+            sh '''
+                source venv/bin/activate
+                pytest tests/ --maxfail=1 --disable-warnings -q
+            '''
         }
+    }
+}
+
 
         stage('Frontend - Instalar Dependências') {
             steps {
