@@ -1,23 +1,20 @@
 import pytest
 from unittest.mock import patch, MagicMock
 from fastapi import HTTPException
-from backend.app.routes.auth import login_user
-from backend.app.models.user import UserRegister
-
-import sys, os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+from backend.app.routes.user import register_user  # CORREÇÃO: rota de user
+from backend.app.models.user import UserCreate  # CORREÇÃO: classe correta
 
 @pytest.mark.asyncio
 async def test_register_user_sucesso():
-    user = UserRegister(email="mockuser@example.com", password="123456")
+    user = UserCreate(name="Mock User", email="mockuser@example.com", password="123456")
 
     # cria mock da coleção
     users_coll_mock = MagicMock()
     users_coll_mock.find_one.return_value = None  # não achou email
-    users_coll_mock.insert_one.return_value = {"inserted_id": "123"}
+    users_coll_mock.insert_one.return_value = MagicMock(inserted_id="123")
 
     # patcha o get_users_collection para devolver o mock
-    with patch("backend.app.routes.auth.get_users_collection", return_value=users_coll_mock):
+    with patch("backend.app.routes.user.get_users_collection", return_value=users_coll_mock):
         result = await register_user(user)
 
     assert result.email == user.email
@@ -27,12 +24,12 @@ async def test_register_user_sucesso():
 
 @pytest.mark.asyncio
 async def test_register_user_email_existente():
-    user = UserRegister(email="mockuser@example.com", password="123456")
+    user = UserCreate(name="Mock User", email="mockuser@example.com", password="123456")
 
     users_coll_mock = MagicMock()
     users_coll_mock.find_one.return_value = {"email": user.email}
 
-    with patch("backend.app.routes.auth.get_users_collection", return_value=users_coll_mock):
+    with patch("backend.app.routes.user.get_users_collection", return_value=users_coll_mock):
         with pytest.raises(HTTPException) as excinfo:
             await register_user(user)
 
