@@ -1,27 +1,26 @@
-# Usar a imagem LTS do Jenkins
+# Usa a imagem oficial LTS do Jenkins
 FROM jenkins/jenkins:lts
 
-# Usar root temporariamente para instalar dependências
+# Troca para o usuário root para instalar pacotes
 USER root
 
-# Atualizar pacotes
-RUN apt-get update -y
+# Atualiza os pacotes do sistema
+RUN apt-get update
 
-# Instalar Python e dependências
+# Instala Python, pip e venv
 RUN apt-get install -y python3 python3-pip python3-venv
 
-# Instalar Node.js e npm (versão estável)
+# Instala Node.js e npm
 RUN apt-get install -y nodejs npm
 
-# Ajustar permissões
-RUN chown -R jenkins:jenkins /usr/local \
-    && chown -R jenkins:jenkins /var/jenkins_home
+# Instala utilitários gerais (opcional, mas útil)
+RUN apt-get install -y git curl
 
-# Limpeza
+# Corrige permissões
+RUN chown -R jenkins:jenkins /usr/local
+
+# Limpa cache
 RUN apt-get clean
 
-# Instalando ferramentas que Jenkins usa para pipelines
-RUN apt-get install -y git
-
-# Voltar para o usuário Jenkins
+# Volta para o usuário jenkins (boa prática)
 USER jenkins
