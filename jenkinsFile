@@ -2,10 +2,8 @@ pipeline {
     agent any
 
     environment {
-        // Caminho da venv
         VENV_PATH = "${WORKSPACE}/venv"
-        // Cache PYTHONPATH para backend
-        PYTHONPATH = "${WORKSPACE}/backend"
+        PYTHONPATH = "${WORKSPACE}"   
     }
 
     stages {
@@ -27,37 +25,34 @@ pipeline {
 
         stage('Backend - Instalar Dependências') {
             steps {
-                dir('backend') {
-                    sh '''
-                        . ../venv/bin/activate
-                        pip install -r requirements.txt
-                    '''
-                }
+                sh '''
+                    . venv/bin/activate
+                    pip install -r backend/requirements.txt
+                '''
             }
         }
 
         stage('Backend - Testes') {
-    steps {
-        dir('backend') {
-            sh '''
-                . ../venv/bin/activate
-                export PYTHONPATH=$PYTHONPATH:$(pwd)
+            steps {
+                sh '''
+                    . venv/bin/activate
+                    
+                    # Garantir que o PYTHONPATH aponte para o workspace (raiz)
+                    export PYTHONPATH=${WORKSPACE}
 
-                # Garantir diretório para o relatório
-                mkdir -p reports
+                    # Criar pasta de relatórios
+                    mkdir -p backend/reports
 
-                # Rodar pytest gerando relatório sempre no mesmo lugar
-                pytest --junitxml=reports/test-results.xml || true
-            '''
+                    # Rodar pytest nos testes
+                    pytest backend/tests --junitxml=backend/reports/test-results.xml || true
+                '''
+            }
+            post {
+                always {
+                    junit 'backend/reports/test-results.xml'
+                }
+            }
         }
-    }
-    post {
-        always {
-            junit 'backend/reports/test-results.xml'
-        }
-    }
-}
-
 
         stage('Frontend - Instalar Dependências') {
             steps {
