@@ -32,27 +32,18 @@ pipeline {
             }
         }
 
-        stage('Backend - Testes') {
-            steps {
-                sh '''
-                    . venv/bin/activate
-                    
-                    # Garantir que o PYTHONPATH aponte para o workspace (raiz)
-                    export PYTHONPATH=${WORKSPACE}
-
-                    # Criar pasta de relatórios
-                    mkdir -p backend/reports
-
-                    # Rodar pytest nos testes
-                    pytest backend/tests --junitxml=backend/reports/test-results.xml || true
-                '''
-            }
-            post {
-                always {
-                    junit 'backend/reports/test-results.xml'
-                }
-            }
+        stage("Test Backend") {
+    steps { 
+        dir("backend") {
+            echo "Testing Backend"
+            sh """
+                source venv/bin/activate
+                pytest tests/ --junitxml=reports/test-results.xml
+            """
         }
+    }
+}
+
 
         stage('Frontend - Instalar Dependências') {
             steps {
