@@ -32,17 +32,17 @@ pipeline {
             }
         }
 
-        stage("Test Backend") {
-            steps { 
-                dir("backend") {
-                    echo "Testing Backend"
-                    sh """
-                        . ${VENV_PATH}/bin/activate
-                        pytest tests/
-                    """
-                }
-            }
+       stage("Test Backend") {
+    steps { 
+        dir("backend") {
+            echo "Testing Backend"
+            sh """
+                ${VENV_PATH}/bin/python -m pytest tests/
+            """
         }
+    }
+}
+
 
         stage('Frontend - Instalar Dependências') {
             steps {
