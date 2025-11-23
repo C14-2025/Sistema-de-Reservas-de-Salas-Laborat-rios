@@ -3,7 +3,7 @@ import mongomock
 from fastapi.testclient import TestClient
 from passlib.hash import bcrypt
 
-# IMPORTS DO SEU PROJETO (ajuste se necessário)
+# IMPORTS DO SEU PROJETO
 from backend.app.main import app
 from backend.app.database.db import get_users_collection
 
@@ -30,15 +30,10 @@ def override_get_users_collection_factory(mock_db):
 @pytest.fixture()
 def test_client(mock_db):
     """Cria client do FastAPI para testes, com DB mockado."""
-    # Override da dependência
     app.dependency_overrides[get_users_collection] = override_get_users_collection_factory(mock_db)
-
     client = TestClient(app)
     yield client
-
-    # Remove override após o teste
     app.dependency_overrides.clear()
-
 
 
 # -------------------------------
@@ -47,19 +42,18 @@ def test_client(mock_db):
 
 def test_register_user(test_client):
     payload = {
-        "name":"Teste",
+        "name": "Teste",
         "email": "teste@email.com",
         "password": "123456"
     }
 
-    response = test_client.post("/auth/register", json=payload)
+    response = test_client.post("/user/register", json=payload)
 
-    assert response.status_code == 200
+    assert response.status_code == 201
     data = response.json()
 
     assert "id" in data
-    assert data["message"] == "Usuário registrado com sucesso"
-
+    assert data["message"] == "Usuário criado com sucesso!"
 
 
 # -------------------------------
@@ -69,9 +63,9 @@ def test_register_user(test_client):
 def test_login_user(test_client, mock_db):
     """Testa login com senha criptografada."""
 
-
+    # Inserir usuário com senha hash no mock DB
     mock_db["users"].insert_one({
-    
+        "name": "Teste",
         "email": "teste@login.com",
         "password": bcrypt.hash("123456")
     })
