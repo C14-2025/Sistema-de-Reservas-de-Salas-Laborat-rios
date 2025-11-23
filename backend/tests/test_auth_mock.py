@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import patch, MagicMock
 from fastapi import HTTPException
-from backend.app.routes.auth import register_user
+from backend.app.routes.auth import login_user
 from backend.app.models.user import UserRegister
 
 import sys, os
