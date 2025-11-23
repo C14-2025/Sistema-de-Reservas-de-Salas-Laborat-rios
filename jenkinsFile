@@ -12,23 +12,13 @@ pipeline {
             }
         }
 
-        stage('Setup Python venv') {
+        stage('Setup Python venv e Instalar Dependências') {
             steps {
                 dir('backend') {
                     sh '''
                         python3 -m venv venv
                         . venv/bin/activate
                         pip install --upgrade pip
-                    '''
-                }
-            }
-        }
-
-        stage('Backend - Instalar Dependências') {
-            steps {
-                dir('backend') {
-                    sh '''
-                        . venv/bin/activate
                         pip install -r requirements.txt
                     '''
                 }
@@ -37,7 +27,7 @@ pipeline {
 
         stage('Test Backend') {
             steps { 
-                dir("backend") {
+                dir('backend') {
                     echo "Executando testes do Backend"
                     sh '''
                         . venv/bin/activate
