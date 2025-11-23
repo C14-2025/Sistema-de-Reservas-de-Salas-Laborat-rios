@@ -1,0 +1,17 @@
+version: "3.9"
+
+services:
+  jenkins:
+    image: jenkins-python-node
+    container_name: trabalho
+    user: root
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+    environment:
+      - JAVA_OPTS=-Djenkins.install.runSetupWizard=false  
+
+volumes:
+  jenkins_home:
