@@ -26,25 +26,23 @@ pipeline {
         stage('Backend - Instalar Dependências') {
             steps {
                 sh '''
-                    . venv/bin/activate
+                    . ${VENV_PATH}/bin/activate
                     pip install -r backend/requirements.txt
                 '''
             }
         }
 
-       stage("Test Backend") {
+        stage("Test Backend") {
             steps { 
                 dir("backend") {
                     echo "Testing Backend"
                     sh """
-                        . venv/bin/activate
-                        uv run pytest tests/. 
+                        . ${VENV_PATH}/bin/activate
+                        pytest tests/
                     """
                 }
             }
         }
-
-
 
         stage('Frontend - Instalar Dependências') {
             steps {
