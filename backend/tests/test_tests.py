@@ -44,20 +44,18 @@ def mock_mongo():
         "reservations": FakeCollection(fake_reservations),
     }
 
-    # PATCH NO LUGAR CERTO
-    with patch("app.utils.auth.get_users_collection", return_value=fake_db["users"]):
-        with patch("app.utils.auth.get_labs_collection", return_value=fake_db["labs"]):
-            with patch("app.utils.auth.get_reservations_collection", return_value=fake_db["reservations"]):
-                yield
-
+    # PATCH apenas o que existe
+    with patch("app.utils.auth.get_users_collection", return_value=fake_db["users"]), \
+         patch("app.utils.auth.get_reservations_collection", return_value=fake_db["reservations"]):
+        yield
 
 
 client = TestClient(app)
 
+
 # --------------------------
 # TESTES ABAIXO FUNCIONAM
 # --------------------------
-
 
 def test_create_user():
     from app.utils.auth import create_user, verify_password
@@ -75,4 +73,3 @@ def test_duplicate_email():
     create_user("dup@example.com", "123")
     with pytest.raises(ValueError):
         create_user("dup@example.com", "123")
-        
