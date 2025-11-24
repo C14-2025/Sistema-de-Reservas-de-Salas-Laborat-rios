@@ -74,6 +74,11 @@ pipeline {
                     '''
                 }
             }
+            post {
+                always {
+                    junit 'frontend/test-results.xml'
+                }
+            }
         }
 
         stage('Frontend - Build') {
