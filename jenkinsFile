@@ -26,20 +26,24 @@ pipeline {
             }
         }
 
-        stage('Testes Unitários - Banco de Dados e API') {
+        stage('Testes Unitários - Backend') {
             steps {
                 dir('backend') {
                     sh '''
+                        # Ativa venv
                         . venv/bin/activate
-                        if [ -f tests/testPytest.py ]; then
-                            pytest tests/ --html=report_bd.html --self-contained-html || true
-                        else
-                            echo "Nenhum testPytest.py encontrado, pulando testes"
-                        fi
+
+                        # Garante pytest-asyncio
+                        pip install pytest-asyncio
+
+                        # Ajusta PYTHONPATH para o backend
+                        export PYTHONPATH=$(pwd)
+
+                        # Executa todos os testes (mockando banco de dados onde necessário)
+                        pytest tests/ --html=report_bd.html --self-contained-html
                     '''
                 }
             }
-
             post {
                 always {
                     archiveArtifacts artifacts: 'backend/report_bd.html', allowEmptyArchive: true
@@ -50,7 +54,7 @@ pipeline {
                         keepAll: true,
                         reportDir: 'backend',
                         reportFiles: 'report_bd.html',
-                        reportName: 'Report BD'
+                        reportName: 'Report Backend'
                     ])
                 }
             }
