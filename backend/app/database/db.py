@@ -4,7 +4,7 @@ from pymongo import MongoClient
 import os
 
 # Caminho até o .env que está uma pasta acima
-env_path = Path(__file__).resolve().parent.parent.parent / ".env"
+env_path = Path(__file__).resolve().parent.parent.parent.parent / ".env"
 load_dotenv(dotenv_path=env_path)
 
 print("DEBUG - .env carregado de:", env_path)
