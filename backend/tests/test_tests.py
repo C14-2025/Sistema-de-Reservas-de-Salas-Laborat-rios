@@ -8,10 +8,10 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
 from fastapi.testclient import TestClient
 from backend.app.main import app  # importa o app FastAPI principal
 
-from backend.app.utils.auth import hash_password, create_user, verify_password
-from backend.app.database.db import connect_to_mongo, close_connection_to_mongo, get_users_collection, get_labs_collection, get_database
-from backend.app.utils.lab import create_lab, get_all_labs, get_lab_by_id, get_labs_collection
-from backend.app.utils.reservation import create_reservation, get_all_reservations, get_reservations_by_user, get_reservation_by_id, check_availability
+from app.utils.auth import hash_password, create_user, verify_password
+from app.database.db import connect_to_mongo, close_connection_to_mongo, get_users_collection, get_labs_collection, get_database
+from app.utils.lab import create_lab, get_all_labs, get_lab_by_id, get_labs_collection
+from app.utils.reservation import create_reservation, get_all_reservations, get_reservations_by_user, get_reservation_by_id, check_availability
 
 
 # Conecta no banco antes da sessão de testes e fecha no final
