@@ -1,6 +1,11 @@
 pipeline {
     agent any
 
+    environment {
+        MONGO_URI = "mongodb+srv://rm:teste@cluster0.qqpv0z8.mongodb.net/db?retryWrites=true&w=majority&tls=true"
+        DB_NAME = "db"
+    }
+
     stages {
 
         stage('Checkout SCM') {
@@ -27,7 +32,6 @@ pipeline {
                 dir('backend') {
                     sh '''
                         . venv/bin/activate
-                        pip install pytest-asyncio
 
                         export PYTHONPATH=$(pwd)/..
 
@@ -63,7 +67,6 @@ pipeline {
             steps {
                 dir('frontend') {
                     sh '''
-                        # Executa testes frontend com relatório HTML
                         npm run test -- --reporter=html --reporter-options output=frontend/test-report.html
                     '''
                 }
