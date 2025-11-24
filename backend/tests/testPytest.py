@@ -27,7 +27,7 @@ def test_create_user_success():
             fake_users[_id] = doc
             return MagicMock(inserted_id=_id)
 
-    with patch("app.utils.auth.get_users_collection", return_value=FakeUsersColl()):
+    with patch("app.database.db.get_users_collection", return_value=FakeUsersColl()):
         user = create_user("teste@example.com", "123")
         assert user["email"] == "teste@example.com"
         assert verify_password("123", user["password"])
@@ -39,7 +39,7 @@ def test_create_user_duplicate():
         def insert_one(self, doc):
             return MagicMock(inserted_id="1")
 
-    with patch("app.utils.auth.get_users_collection", return_value=FakeUsersColl()):
+    with patch("app.database.db.get_users_collection", return_value=FakeUsersColl()):
         import pytest
         with pytest.raises(ValueError):
             create_user("dup@example.com", "123")
