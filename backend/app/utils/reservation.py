@@ -1,27 +1,31 @@
 from ..database.db import get_database
 from bson import ObjectId
 from typing import Optional
+from ..utils.lab import get_lab_by_id
+
+def _time_overlap(start_a: str, end_a: str, start_b: str, end_b: str) -> bool:
+    return start_a < end_b and end_a > start_b
 
 def create_reservation(user_email: str, lab_id: str, date: str, start_time: str, end_time: str) -> dict:
-    
     db = get_database()
     reservations_coll = db["reservations"]
+    lab = get_lab_by_id(lab_id)
+    if not lab:
+        raise ValueError("Laboratório não encontrado.")
 
-    conflict = reservations_coll.find_one({
-        "lab_id": lab_id,
-        "date": date,
-        "$or": [
-            {"start_time": {"$lt": end_time, "$gte": start_time}},
-            {"end_time": {"$gt": start_time, "$lte": end_time}}
-        ]
-    })
-
-    if conflict:
-        raise ValueError("Horário já reservado para este laboratório.")
+    existing = list(reservations_coll.find({"lab_id": lab_id, "date": date}))
+    for r in existing:
+        r_start = r.get("start_time")
+        r_end = r.get("end_time")
+        if r_start is None or r_end is None:
+            continue
+        if _time_overlap(start_time, end_time, r_start, r_end):
+            raise ValueError("Horário já reservado para este laboratório.")
 
     reservation = {
         "user_email": user_email,
         "lab_id": lab_id,
+        "lab_name": lab.get("name", ""),
         "date": date,
         "start_time": start_time,
         "end_time": end_time,
@@ -35,7 +39,6 @@ def create_reservation(user_email: str, lab_id: str, date: str, start_time: str,
 
 
 def get_all_reservations() -> list:
-    
     db = get_database()
     reservations_coll = db["reservations"]
 
@@ -46,7 +49,6 @@ def get_all_reservations() -> list:
 
 
 def get_reservations_by_user(user_email: str) -> list:
-    
     db = get_database()
     reservations_coll = db["reservations"]
 
@@ -57,7 +59,6 @@ def get_reservations_by_user(user_email: str) -> list:
 
 
 def get_reservation_by_id(reservation_id: str) -> Optional[dict]:
-   
     db = get_database()
     reservations_coll = db["reservations"]
 
@@ -68,17 +69,16 @@ def get_reservation_by_id(reservation_id: str) -> Optional[dict]:
 
 
 def check_availability(lab_id: str, date: str, start_time: str, end_time: str) -> bool:
-    
     db = get_database()
     reservations_coll = db["reservations"]
 
-    conflict = reservations_coll.find_one({
-        "lab_id": lab_id,
-        "date": date,
-        "$or": [
-            {"start_time": {"$lt": end_time}},
-            {"end_time": {"$gt": start_time}}
-        ]
-    })
+    existing = list(reservations_coll.find({"lab_id": lab_id, "date": date}))
+    for r in existing:
+        r_start = r.get("start_time")
+        r_end = r.get("end_time")
+        if r_start is None or r_end is None:
+            continue
+        if _time_overlap(start_time, end_time, r_start, r_end):
+            return False
 
-    return conflict is None
+    return True

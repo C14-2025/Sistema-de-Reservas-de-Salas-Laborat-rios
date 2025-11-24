@@ -4,6 +4,7 @@ from typing import Optional
 class ReservationBase(BaseModel):
     user_email: str
     lab_id: str
+    lab_name: Optional[str] = None
     date: str  # formato: YYYY-MM-DD
     start_time: str  # formato: HH:MM
     end_time: str  # formato: HH:MM
