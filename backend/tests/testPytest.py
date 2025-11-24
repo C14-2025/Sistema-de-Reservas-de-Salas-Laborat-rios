@@ -61,7 +61,7 @@ def test_create_lab_success():
             fake_labs[_id] = doc
             return MagicMock(inserted_id=_id)
 
-    with patch("app.utils.lab.get_labs_collection", return_value=FakeLabsColl()):
+    with patch("app.database.db.get_labs_collection", return_value=FakeLabsColl()):
         lab = create_lab("Lab A", "Descrição")
         assert lab["name"] == "Lab A"
         assert lab["_id"] == "1"
@@ -73,7 +73,7 @@ def test_create_lab_duplicate():
         def insert_one(self, doc):
             return MagicMock(inserted_id="1")
 
-    with patch("app.utils.lab.get_labs_collection", return_value=FakeLabsColl()):
+    with patch("app.database.db.get_labs_collection", return_value=FakeLabsColl()):
         import pytest
         with pytest.raises(ValueError):
             create_lab("Lab A", "Descrição")
@@ -84,7 +84,7 @@ def test_get_all_labs():
         def find(self, query=None):
             return list(fake_labs.values())
 
-    with patch("app.utils.lab.get_labs_collection", return_value=FakeLabsColl()):
+    with patch("app.database.db.get_labs_collection", return_value=FakeLabsColl()):
         labs = get_all_labs()
         assert len(labs) == 1
         assert labs[0]["name"] == "Lab 1"
@@ -95,7 +95,7 @@ def test_get_lab_by_id():
         def find_one(self, query):
             return fake_labs.get(query["_id"].__str__())
 
-    with patch("app.utils.lab.get_labs_collection", return_value=FakeLabsColl()):
+    with patch("app.database.db.get_labs_collection", return_value=FakeLabsColl()):
         lab = get_lab_by_id("1")
         assert lab is None  # FakeCollection não retorna ObjectId correto, mas serve como exemplo
 
@@ -117,7 +117,7 @@ def test_check_availability():
         def find(self, query):
             return fake_reservations
 
-    with patch("app.utils.reservation.get_database") as mock_db:
+    with patch("app.database.db.get_database") as mock_db:
         mock_db.return_value = {"reservations": FakeDBColl()}
         assert not check_availability("lab1", "2025-11-24", "11:00", "13:00")
         assert check_availability("lab1", "2025-11-24", "12:00", "13:00")
