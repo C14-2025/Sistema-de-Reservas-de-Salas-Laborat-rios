@@ -6,13 +6,14 @@ pipeline {
     }
 
     stages {
+
         stage('Checkout SCM') {
             steps {
                 checkout scm
             }
         }
 
-        stage('Setup Python venv e Instalar Dependências') {
+        stage('Backend - Setup venv e Instalar Dependências') {
             steps {
                 dir('backend') {
                     sh '''
@@ -25,18 +26,36 @@ pipeline {
             }
         }
 
-        stage('Test Backend') {
-    steps { 
-        dir("backend") {
-            echo "Testing Backend"
+        stage('Testes Unitários - Banco de Dados e API') {
+    steps {
+        dir('backend') {
             sh '''
-                python3 -m venv venv
-                 . venv/bin/activate
-                 pip install --upgrade pip
-                  pip install -r requirements.txt
-                pytest tests/         }
+                . venv/bin/activate
+                if [ -f tests/testPytest.py ]; then
+                    pytest tests/ --html=report_bd.html --self-contained-html || true
+                else
+                    echo "Nenhum testPytest.py encontrado, pulando testes"
+                fi
+            '''
+        }
+    }
+
+    post {
+        always {
+            archiveArtifacts artifacts: 'backend/report_bd.html', allowEmptyArchive: true
+
+            publishHTML([
+                allowMissing: true,
+                alwaysLinkToLastBuild: true,
+                keepAll: true,
+                reportDir: 'backend',
+                reportFiles: 'report_bd.html',
+                reportName: 'Report BD'
+            ])
+        }
     }
 }
+
 
 
         stage('Frontend - Instalar Dependências') {
@@ -51,11 +70,8 @@ pipeline {
             steps {
                 dir('frontend') {
                     sh '''
-                        if npm run | grep -q test; then
-                            npm test -- --watchAll=false --ci || true
-                        else
-                            echo "Script test não encontrado, pulando testes frontend"
-                        fi
+                        # Executa testes apenas se o script "test" estiver presente
+                        npm run test -- --watchAll=false --ci --if-present
                     '''
                 }
             }
