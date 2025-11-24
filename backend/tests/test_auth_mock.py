@@ -29,7 +29,7 @@ async def test_register_user_email_existente():
     users_coll_mock = MagicMock()
     users_coll_mock.find_one.return_value = {"email": user.email}
 
-    with patch("backend.app.routes.user.get_users_collection", return_value=users_coll_mock):
+    with patch("app.routes.user.get_users_collection", return_value=users_coll_mock):
         with pytest.raises(HTTPException) as excinfo:
             await register_user(user)
 
