@@ -45,8 +45,8 @@ def mock_mongo():
     }
 
     # PATCH apenas o que existe
-    with patch("app.utils.auth.get_users_collection", return_value=fake_db["users"]), \
-         patch("app.utils.auth.get_reservations_collection", return_value=fake_db["reservations"]):
+    with patch("app.models.auth.get_users_collection", return_value=fake_db["users"]), \
+         patch("app.models.auth.get_reservations_collection", return_value=fake_db["reservations"]):
         yield
 
 
