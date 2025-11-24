@@ -70,8 +70,7 @@ pipeline {
             steps {
                 dir('frontend') {
                     sh '''
-                        # Executa testes apenas se o script "test" estiver presente
-                        npm run test -- --run --if-present
+                        npm run test -- --run
                     '''
                 }
             }
