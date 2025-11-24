@@ -71,9 +71,20 @@ pipeline {
                     sh 'npm run test'
                 }
             }
-            post {
-                always {
-                    junit 'frontend/test-results/vitest-results.xml'
+            stage('Frontend - Testes (Vitest XML)') {
+                steps {
+                    dir('frontend') {
+                        sh '''
+                            mkdir -p test-results
+                            npx vitest run --reporter=junit --outputFile=test-results/vitest-results.xml
+                        '''
+                    }
+                }
+
+                post {
+                    always {
+                        junit 'frontend/test-results/vitest-results.xml'
+                    }
                 }
             }
         }

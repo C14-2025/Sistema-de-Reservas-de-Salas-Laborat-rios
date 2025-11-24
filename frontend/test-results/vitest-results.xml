@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuites name="vitest tests" tests="16" failures="0" errors="0" time="0.025223124">
+    <testsuite name="src/api/tests/auth.test.ts" timestamp="2025-11-24T23:00:18.839Z" hostname="Vitors-MacBook-Air.local" tests="2" failures="0" errors="0" skipped="0" time="0.005190458">
+        <testcase classname="src/api/tests/auth.test.ts" name="AuthRepository &gt; returns IAuth when login is successful" time="0.003347292">
+        </testcase>
+        <testcase classname="src/api/tests/auth.test.ts" name="AuthRepository &gt; returns null when login fails" time="0.000458625">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/api/tests/lab.test.ts" timestamp="2025-11-24T23:00:18.840Z" hostname="Vitors-MacBook-Air.local" tests="2" failures="0" errors="0" skipped="0" time="0.005124708">
+        <testcase classname="src/api/tests/lab.test.ts" name="LabRepository &gt; returns all labs when request is successful" time="0.003307542">
+        </testcase>
+        <testcase classname="src/api/tests/lab.test.ts" name="LabRepository &gt; returns null when request fails" time="0.000439208">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/api/tests/reservation.test.ts" timestamp="2025-11-24T23:00:18.842Z" hostname="Vitors-MacBook-Air.local" tests="8" failures="0" errors="0" skipped="0" time="0.008658375">
+        <testcase classname="src/api/tests/reservation.test.ts" name="ReservationRepository &gt; creates a reservation and returns a message" time="0.003424167">
+        </testcase>
+        <testcase classname="src/api/tests/reservation.test.ts" name="ReservationRepository &gt; returns null when reservation creation fails" time="0.000532292">
+        </testcase>
+        <testcase classname="src/api/tests/reservation.test.ts" name="ReservationRepository &gt; returns all reservations" time="0.000763334">
+        </testcase>
+        <testcase classname="src/api/tests/reservation.test.ts" name="ReservationRepository &gt; returns null when GetAll fails" time="0.000198625">
+        </testcase>
+        <testcase classname="src/api/tests/reservation.test.ts" name="ReservationRepository &gt; gets reservations by user" time="0.000672083">
+        </testcase>
+        <testcase classname="src/api/tests/reservation.test.ts" name="ReservationRepository &gt; returns null when GetByUser fails" time="0.000554792">
+        </testcase>
+        <testcase classname="src/api/tests/reservation.test.ts" name="ReservationRepository &gt; gets a reservation by ID" time="0.000541208">
+        </testcase>
+        <testcase classname="src/api/tests/reservation.test.ts" name="ReservationRepository &gt; returns null when Get fails" time="0.000275875">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/api/tests/user.test.ts" timestamp="2025-11-24T23:00:18.845Z" hostname="Vitors-MacBook-Air.local" tests="4" failures="0" errors="0" skipped="0" time="0.006249583">
+        <testcase classname="src/api/tests/user.test.ts" name="UserRepository &gt; creates a user and returns IUser" time="0.003235417">
+        </testcase>
+        <testcase classname="src/api/tests/user.test.ts" name="UserRepository &gt; returns null when user creation fails" time="0.000515667">
+        </testcase>
+        <testcase classname="src/api/tests/user.test.ts" name="UserRepository &gt; gets user by ID and returns IUser" time="0.000737833">
+        </testcase>
+        <testcase classname="src/api/tests/user.test.ts" name="UserRepository &gt; returns null when GetMe fails" time="0.000325334">
+        </testcase>
+    </testsuite>
+</testsuites>

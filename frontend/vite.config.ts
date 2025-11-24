@@ -17,7 +17,5 @@ export default defineConfig({
   test: {
     globals: true,
     setupFiles: ["src/vitest.setup.ts"],
-    reporters: ["default", "junit"],
-    outputFile: "frontend/test-results.xml",
   },
 });
