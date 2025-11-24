@@ -26,14 +26,11 @@ pipeline {
             steps {
                 dir('backend') {
                     sh '''
-                        # Ativa venv e instala pytest-asyncio
                         . venv/bin/activate
                         pip install pytest-asyncio
 
-                        # Ajusta PYTHONPATH para que imports backend.app funcionem
                         export PYTHONPATH=$(pwd)/..
 
-                        # Executa todos os testes com saída detalhada e relatório HTML
                         pytest tests/ --html=report_bd.html --self-contained-html -v
                     '''
                 }
@@ -41,7 +38,6 @@ pipeline {
             post {
                 always {
                     archiveArtifacts artifacts: 'backend/report_bd.html', allowEmptyArchive: true
-
                     publishHTML([
                         allowMissing: true,
                         alwaysLinkToLastBuild: true,
@@ -67,14 +63,22 @@ pipeline {
             steps {
                 dir('frontend') {
                     sh '''
-                        # Executa testes e gera relatório JUnit
-                        npm run test -- --run --reporter=junit --outputFile=test-results.xml
+                        # Executa testes frontend com relatório HTML
+                        npm run test -- --reporter=html --reporter-options output=frontend/test-report.html
                     '''
                 }
             }
             post {
                 always {
-                    junit 'frontend/test-results.xml'
+                    archiveArtifacts artifacts: 'frontend/test-report.html', allowEmptyArchive: true
+                    publishHTML([
+                        allowMissing: true,
+                        alwaysLinkToLastBuild: true,
+                        keepAll: true,
+                        reportDir: 'frontend',
+                        reportFiles: 'test-report.html',
+                        reportName: 'Frontend HTML Report'
+                    ])
                 }
             }
         }
