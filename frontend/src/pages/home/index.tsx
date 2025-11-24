@@ -96,6 +96,7 @@ export function HomePage() {
       setLoading(false);
     }
     load();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
