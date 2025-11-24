@@ -59,8 +59,10 @@ pipeline {
         stage('Frontend - Instalar Dependências') {
             steps {
                 dir('frontend') {
-                    sh 'rm -rf node_modules package-lock.json'
-                    sh 'npm install'
+                    sh '''
+                        rm -rf node_modules package-lock.json
+                        npm install
+                    '''
                 }
             }
         }
@@ -71,20 +73,21 @@ pipeline {
                     sh 'npm run test'
                 }
             }
-            stage('Frontend - Testes (Vitest XML)') {
-                steps {
-                    dir('frontend') {
-                        sh '''
-                            mkdir -p test-results
-                            npx vitest run --reporter=junit --outputFile=test-results/vitest-results.xml
-                        '''
-                    }
-                }
+        }
 
-                post {
-                    always {
-                        junit 'frontend/test-results/vitest-results.xml'
-                    }
+        stage('Frontend - Testes (Vitest XML)') {
+            steps {
+                dir('frontend') {
+                    sh '''
+                        mkdir -p test-results
+                        npx vitest run --reporter=junit --outputFile=test-results/vitest-results.xml
+                    '''
+                }
+            }
+
+            post {
+                always {
+                    junit 'frontend/test-results/vitest-results.xml'
                 }
             }
         }
