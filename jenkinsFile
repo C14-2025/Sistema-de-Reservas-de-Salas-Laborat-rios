@@ -27,37 +27,37 @@ pipeline {
         }
 
         stage('Testes Unitários - Banco de Dados e API') {
-            steps {
-                echo 'Executando testes de Banco de Dados...'
-                dir('backend') {
-                    sh '''
-                        . venv/bin/activate
+    steps {
+        echo 'Executando testes de Banco de Dados...'
+        dir('backend') {
+            sh '''
+                . venv/bin/activate
 
-                        if [ -f tests/testPytest.py ]; then
-                            pytest tests/testPytest.py --template=html1/index.html --report=report_bd.html || true
-                        else
-                            echo "Nenhum testPytest.py encontrado, pulando testes"
-                        fi
-                    '''
-                }
-            }
-
-            post {
-                always {
-                    // Salva o relatório gerado dentro de backend
-                    archiveArtifacts artifacts: 'backend/report_bd.html', allowEmptyArchive: true
-
-                    publishHTML([
-                        allowMissing: true,
-                        alwaysLinkToLastBuild: true,
-                        keepAll: true,
-                        reportDir: 'backend',
-                        reportFiles: 'report_bd.html',
-                        reportName: 'Report BD'
-                    ])
-                }
-            }
+                if [ -f tests/testPytest.py ]; then
+                    pytest tests/testPytest.py --html=report_bd.html --self-contained-html || true
+                else
+                    echo "Nenhum testPytest.py encontrado, pulando testes"
+                fi
+            '''
         }
+    }
+
+    post {
+        always {
+            archiveArtifacts artifacts: 'backend/report_bd.html', allowEmptyArchive: true
+
+            publishHTML([
+                allowMissing: true,
+                alwaysLinkToLastBuild: true,
+                keepAll: true,
+                reportDir: 'backend',
+                reportFiles: 'report_bd.html',
+                reportName: 'Report BD'
+            ])
+        }
+    }
+}
+
 
         stage('Frontend - Instalar Dependências') {
             steps {
