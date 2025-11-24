@@ -58,36 +58,27 @@ pipeline {
 
 
 
-        stage('Frontend - Instalar Dependências') {
-            steps {
-                dir('frontend') {
-                    sh 'npm install'
-                }
-            }
-        }
-
-        stage('Frontend - Testes') {
-            steps {
-                dir('frontend') {
-                    sh '''
-                        npm run test -- --run
-                    '''
-                }
-            }
-        }
-
-        stage('Frontend - Build') {
-            steps {
-                dir('frontend') {
-                    sh 'npm run build'
-                }
-            }
+ stage('Frontend - Instalar Dependências') {
+    steps {
+        dir('frontend') {
+            sh 'rm -rf node_modules package-lock.json'
+            sh 'npm install'
         }
     }
+}
 
-    post {
-        always {
-            echo "Pipeline finalizada"
+stage('Frontend - Testes') {
+    steps {
+        dir('frontend') {
+            sh 'npm run test'
+        }
+    }
+}
+
+stage('Frontend - Build') {
+    steps {
+        dir('frontend') {
+            sh 'npm run build'
         }
     }
 }
