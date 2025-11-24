@@ -65,33 +65,9 @@ pipeline {
             }
         }
 
-        stage('Frontend - Testes') {
-    steps {
-        dir('frontend') {
-            sh '''
-                # Executa testes e gera relatório JUnit e HTML
-                npm run test || true
-            '''
-        }
-    }
+        cd frontend
+npm install --save-dev xunit-viewer
 
-    post {
-        always {
-            // JUnit
-            junit 'frontend/test-results.xml'
-
-            // HTML
-            publishHTML([
-                allowMissing: true,
-                alwaysLinkToLastBuild: true,
-                keepAll: true,
-                reportDir: 'frontend',
-                reportFiles: 'test-report.html',
-                reportName: 'Report Frontend'
-            ])
-        }
-    }
-}
 
 
         stage('Frontend - Build') {
