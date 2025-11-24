@@ -14,7 +14,7 @@ async def test_register_user_sucesso():
     users_coll_mock.insert_one.return_value = MagicMock(inserted_id="123")
 
     # patcha o get_users_collection para devolver o mock
-    with patch("app.routes.user.get_users_collection", return_value=users_coll_mock):
+    with patch("app.database.db.get_users_collection", return_value=users_coll_mock):
         result = await register_user(user)
 
     assert result.email == user.email
