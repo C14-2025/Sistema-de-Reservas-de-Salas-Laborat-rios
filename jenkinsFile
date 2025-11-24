@@ -26,35 +26,31 @@ pipeline {
             }
         }
 
-        stage('Testes Unitários - Banco de Dados e API') {
-            steps {
-                dir('backend') {
-                    sh '''
-                        . venv/bin/activate
-                        if [ -d tests ]; then
-                            pytest tests/ --html=report_bd.html --self-contained-html || true
-                        else
-                            echo "Nenhum diretório de testes encontrado, pulando"
-                        fi
-                    '''
-                }
-            }
-
-            post {
-                always {
-                    archiveArtifacts artifacts: 'backend/report_bd.html', allowEmptyArchive: true
-
-                    publishHTML([
-                        allowMissing: true,
-                        alwaysLinkToLastBuild: true,
-                        keepAll: true,
-                        reportDir: 'backend',
-                        reportFiles: 'report_bd.html',
-                        reportName: 'Report BD'
-                    ])
-                }
-            }
+       stage('Frontend - Testes') {
+    steps {
+        dir('frontend') {
+            sh '''
+                npm install --save-dev xunit-viewer
+                npm run test -- --reporter=junit --outputFile=test-results.xml
+                npx xunit-viewer --results=test-results.xml --output=test-results.html --title="Frontend Test Report"
+            '''
         }
+    }
+    post {
+        always {
+            archiveArtifacts artifacts: 'frontend/test-results.html', allowEmptyArchive: true
+            publishHTML([
+                allowMissing: true,
+                alwaysLinkToLastBuild: true,
+                keepAll: true,
+                reportDir: 'frontend',
+                reportFiles: 'test-results.html',
+                reportName: 'Frontend Test Report'
+            ])
+        }
+    }
+}
+
 
         stage('Frontend - Instalar Dependências') {
             steps {
