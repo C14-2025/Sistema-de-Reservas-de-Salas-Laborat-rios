@@ -8,7 +8,7 @@ import type { ILab } from "@/api/interfaces/lab";
 import { toast } from "sonner";
 
 export function HomePage() {
-  const { user } = useContext(UserContext);
+  const { user, logout } = useContext(UserContext);
   const reservationRepository = new ReservationRepository();
   const labRepository = new LabRepository();
   const [reservedLabs, setReservedLabs] = useState<IReservation[]>([]);
@@ -83,6 +83,11 @@ export function HomePage() {
     }
   }
 
+  function handleLogout() {
+    logout();
+    window.location.href = "/";
+  }
+
   useEffect(() => {
     async function load() {
       setLoading(true);
@@ -108,7 +113,12 @@ export function HomePage() {
               <span className="font-thin">{user?.email}</span>
             </div>
           </div>
-          <button>logout</button>
+          <button
+            onClick={handleLogout}
+            className="text-red-600 hover:underline cursor-pointer"
+          >
+            Logout
+          </button>
         </div>
         <div className="space-y-4 overflow-y-scroll flex-1 pr-2">
           <h2 className="text-xl font-semibold">Laboratórios Reservados</h2>
