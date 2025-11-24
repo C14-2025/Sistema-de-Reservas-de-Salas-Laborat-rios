@@ -1,122 +1,78 @@
 pipeline {
     agent any
 
-    parameters {
-        string(name: 'NOTIFY_EMAIL', defaultValue: '', description: 'Email para notificações')
-    }
-
     environment {
-        VENV = "${WORKSPACE}\\venv"
-        PYTHON = "python"  // Certifique que o python está no PATH do Jenkins
-        NOTIFY_EMAIL = "${params.NOTIFY_EMAIL}"
+        PYTHONPATH = "${WORKSPACE}/backend"
     }
 
     stages {
-
-        stage('Checkout') {
+        stage('Checkout SCM') {
             steps {
-                echo "Fazendo checkout..."
-                git branch: 'main', url: 'https://github.com/C14-2025/Sistema-de-Reservas-de-Salas-Laborat-rios'
+                checkout scm
             }
         }
 
-        stage('Setup Python venv') {
+        stage('Setup Python venv e Instalar Dependências') {
             steps {
-                echo "Criando venv e atualizando pip..."
-                bat "${PYTHON} -m venv venv"
-                bat "venv\\Scripts\\python.exe -m pip install --upgrade pip"
-            }
-        }
-
-        stage('Backend - Instalar Dependências') {
-            steps {
-                echo "Instalando dependências do backend..."
-                bat "venv\\Scripts\\python.exe -m pip install -r backend\\requirements.txt"
-            }
-        }
-
-        stage('Backend - Testes') {
-            steps {
-                echo "Executando testes do backend..."
                 dir('backend') {
-                    bat "..\\venv\\Scripts\\python.exe -m pytest --junitxml=report.xml || exit 0"
-                }
-            }
-            post {
-                always {
-                    junit 'backend/report.xml'
+                    sh '''
+                        python3 -m venv venv
+                        . venv/bin/activate
+                        pip install --upgrade pip
+                        pip install -r requirements.txt
+                    '''
                 }
             }
         }
+
+        stage('Test Backend') {
+    steps { 
+        dir("backend") {
+            echo "Testing Backend"
+            sh '''
+                python3 -m venv venv
+                 . venv/bin/activate
+                 pip install --upgrade pip
+                  pip install -r requirements.txt
+                pytest tests/         }
+    }
+}
+
 
         stage('Frontend - Instalar Dependências') {
             steps {
-                echo "Instalando dependências do frontend..."
                 dir('frontend') {
-                    bat "npm install"
+                    sh 'npm install'
                 }
             }
         }
 
         stage('Frontend - Testes') {
             steps {
-                echo "Executando testes do frontend..."
                 dir('frontend') {
-                    bat "npm test --watchAll=false --ci || exit 0"
+                    sh '''
+                        if npm run | grep -q test; then
+                            npm test -- --watchAll=false --ci || true
+                        else
+                            echo "Script test não encontrado, pulando testes frontend"
+                        fi
+                    '''
                 }
             }
         }
 
         stage('Frontend - Build') {
             steps {
-                echo "Gerando build do frontend..."
                 dir('frontend') {
-                    bat "npm run build"
+                    sh 'npm run build'
                 }
             }
         }
-
-        // Deploy opcional
-        /*
-        stage('Deploy') {
-            when { branch 'main' }
-            steps {
-                echo "Deploy real seria feito aqui..."
-            }
-        }
-        */
     }
 
     post {
         always {
             echo "Pipeline finalizada"
-            cleanWs()
-        }
-
-        success {
-            echo "SUCESSO!"
-            script {
-                if (NOTIFY_EMAIL.trim() != "") {
-                    emailext(
-                        subject: "✔ Sucesso - ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                        body: "Pipeline concluída com sucesso!",
-                        to: NOTIFY_EMAIL
-                    )
-                }
-            }
-        }
-
-        failure {
-            echo "FALHOU!"
-            script {
-                if (NOTIFY_EMAIL.trim() != "") {
-                    emailext(
-                        subject: "❌ Falha - ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                        body: "A pipeline falhou. Verifique os logs.",
-                        to: NOTIFY_EMAIL
-                    )
-                }
-            }
         }
     }
 }
