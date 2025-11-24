@@ -71,6 +71,11 @@ pipeline {
                     sh 'npm run test'
                 }
             }
+            post {
+                always {
+                    junit 'frontend/test-results/vitest-results.xml'
+                }
+            }
         }
 
         stage('Frontend - Build') {
