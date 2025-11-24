@@ -1,10 +1,6 @@
 pipeline {
     agent any
 
-    environment {
-        PYTHONPATH = "${WORKSPACE}/backend"
-    }
-
     stages {
 
         stage('Checkout SCM') {
@@ -30,17 +26,15 @@ pipeline {
             steps {
                 dir('backend') {
                     sh '''
-                        # Ativa venv
+                        # Ativa venv e instala pytest-asyncio
                         . venv/bin/activate
-
-                        # Garante pytest-asyncio
                         pip install pytest-asyncio
 
-                        # Ajusta PYTHONPATH para o backend
-                        export PYTHONPATH=$(pwd)
+                        # Ajusta PYTHONPATH para que imports backend.app funcionem
+                        export PYTHONPATH=$(pwd)/..
 
-                        # Executa todos os testes (mockando banco de dados onde necessário)
-                        pytest tests/ --html=report_bd.html --self-contained-html
+                        # Executa todos os testes com saída detalhada e relatório HTML
+                        pytest tests/ --html=report_bd.html --self-contained-html -v
                     '''
                 }
             }
@@ -70,23 +64,20 @@ pipeline {
         }
 
         stage('Frontend - Testes') {
-    steps {
-        dir('frontend') {
-            sh '''
-                # Executa testes e gera relatório JUnit
-                npm run test -- --run --reporter=junit --outputFile=test-results.xml || true
-            '''
+            steps {
+                dir('frontend') {
+                    sh '''
+                        # Executa testes e gera relatório JUnit
+                        npm run test -- --run --reporter=junit --outputFile=test-results.xml
+                    '''
+                }
+            }
+            post {
+                always {
+                    junit 'frontend/test-results.xml'
+                }
+            }
         }
-    }
-
-    post {
-        always {
-            
-            junit 'frontend/test-results.xml'
-        }
-    }
-}
-
 
         stage('Frontend - Build') {
             steps {
