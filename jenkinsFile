@@ -13,7 +13,7 @@ pipeline {
             }
         }
 
-        stage('Setup Python venv e Instalar Dependências') {
+        stage('Backend - Setup venv e Instalar Dependências') {
             steps {
                 dir('backend') {
                     sh '''
@@ -26,12 +26,13 @@ pipeline {
             }
         }
 
-        stage('Test Backend') {
-            steps { 
+        stage('Backend - Testes') {
+            steps {
                 dir('backend') {
-                    echo "Testing Backend"
+                    echo "Running backend tests..."
                     sh '''
                         . venv/bin/activate
+                        export PYTHONPATH=${WORKSPACE}/backend
                         pytest tests/ --maxfail=1 --disable-warnings -q
                     '''
                 }
