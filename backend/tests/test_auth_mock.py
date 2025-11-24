@@ -1,8 +1,8 @@
 import pytest
 from unittest.mock import patch, MagicMock
 from fastapi import HTTPException
-from backend.app.routes.user import register_user  # CORREÇÃO: rota de user
-from backend.app.models.user import UserCreate  # CORREÇÃO: classe correta
+from app.routes.user import register_user  # CORREÇÃO: rota de user
+from app.models.user import UserCreate  # CORREÇÃO: classe correta
 
 @pytest.mark.asyncio
 async def test_register_user_sucesso():
