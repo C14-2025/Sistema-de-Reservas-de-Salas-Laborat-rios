@@ -6,6 +6,7 @@ pipeline {
     }
 
     stages {
+
         stage('Checkout SCM') {
             steps {
                 checkout scm
@@ -26,18 +27,16 @@ pipeline {
         }
 
         stage('Test Backend') {
-    steps { 
-        dir("backend") {
-            echo "Testing Backend"
-            sh '''
-                python3 -m venv venv
-                 . venv/bin/activate
-                 pip install --upgrade pip
-                  pip install -r requirements.txt
-                pytest tests/         }
-    }
-}
-
+            steps { 
+                dir('backend') {
+                    echo "Testing Backend"
+                    sh '''
+                        . venv/bin/activate
+                        pytest tests/ --maxfail=1 --disable-warnings -q
+                    '''
+                }
+            }
+        }
 
         stage('Frontend - Instalar Dependências') {
             steps {
@@ -51,7 +50,7 @@ pipeline {
             steps {
                 dir('frontend') {
                     sh '''
-                        if npm run | grep -q test; then
+                        if npm run | grep -q "test"; then
                             npm test -- --watchAll=false --ci || true
                         else
                             echo "Script test não encontrado, pulando testes frontend"
