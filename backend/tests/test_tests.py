@@ -11,12 +11,10 @@ from app.main import app
 
 @pytest.fixture(scope="session", autouse=True)
 def mock_mongo():
-    # Banco fake
     fake_users = {}
     fake_labs = {}
     fake_reservations = {}
 
-    # Wrapper para simular uma collection real
     class FakeCollection:
         def __init__(self, storage):
             self.storage = storage
@@ -46,12 +44,12 @@ def mock_mongo():
         "reservations": FakeCollection(fake_reservations),
     }
 
-    # Patchando todas as funções que acessam Mongo real
-    with patch("app.database.db.get_database", return_value=fake_db):
-        with patch("app.database.db.get_users_collection", return_value=fake_db["users"]):
-            with patch("app.database.db.get_labs_collection", return_value=fake_db["labs"]):
-                with patch("app.database.db.get_reservations_collection", return_value=fake_db["reservations"]):
-                    yield
+    # PATCH NO LUGAR CERTO
+    with patch("app.utils.auth.get_users_collection", return_value=fake_db["users"]):
+        with patch("app.utils.auth.get_labs_collection", return_value=fake_db["labs"]):
+            with patch("app.utils.auth.get_reservations_collection", return_value=fake_db["reservations"]):
+                yield
+
 
 
 client = TestClient(app)
@@ -77,3 +75,4 @@ def test_duplicate_email():
     create_user("dup@example.com", "123")
     with pytest.raises(ValueError):
         create_user("dup@example.com", "123")
+        
