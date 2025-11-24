@@ -28,13 +28,11 @@ pipeline {
 
         stage('Testes Unitários - Banco de Dados e API') {
     steps {
-        echo 'Executando testes de Banco de Dados...'
         dir('backend') {
             sh '''
                 . venv/bin/activate
-
                 if [ -f tests/testPytest.py ]; then
-                    pytest tests/testPytest.py --html=report_bd.html --self-contained-html || true
+                    pytest tests/ --html=report_bd.html --self-contained-html || true
                 else
                     echo "Nenhum testPytest.py encontrado, pulando testes"
                 fi
@@ -57,6 +55,7 @@ pipeline {
         }
     }
 }
+
 
 
         stage('Frontend - Instalar Dependências') {
