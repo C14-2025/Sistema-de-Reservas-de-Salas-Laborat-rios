@@ -31,10 +31,10 @@ pipeline {
                 dir('backend') {
                     sh '''
                         . venv/bin/activate
-                        if [ -f tests/testPytest.py ]; then
+                        if [ -d tests ]; then
                             pytest tests/ --html=report_bd.html --self-contained-html || true
                         else
-                            echo "Nenhum testPytest.py encontrado, pulando testes"
+                            echo "Nenhum diretório de testes encontrado, pulando"
                         fi
                     '''
                 }
@@ -69,16 +69,26 @@ pipeline {
     steps {
         dir('frontend') {
             sh '''
-                # Executa testes e gera relatório JUnit
-                npm run test -- --run --reporter=junit --outputFile=test-results.xml || true
+                # Executa testes e gera relatório JUnit e HTML
+                npm run test || true
             '''
         }
     }
 
     post {
         always {
-            
+            // JUnit
             junit 'frontend/test-results.xml'
+
+            // HTML
+            publishHTML([
+                allowMissing: true,
+                alwaysLinkToLastBuild: true,
+                keepAll: true,
+                reportDir: 'frontend',
+                reportFiles: 'test-report.html',
+                reportName: 'Report Frontend'
+            ])
         }
     }
 }

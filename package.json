@@ -1,5 +1,15 @@
 {
   "devDependencies": {
-    "vite-tsconfig-paths": "^5.1.4"
+    "vite-tsconfig-paths": "^5.1.4",
+    "jest-html-reporter": "^3.5.0"
+  },
+  "jest": {
+    "reporters": [
+      "default",
+      ["jest-html-reporter", {
+        "pageTitle": "Test Report Frontend",
+        "outputPath": "test-report.html"
+      }]
+    ]
   }
 }
