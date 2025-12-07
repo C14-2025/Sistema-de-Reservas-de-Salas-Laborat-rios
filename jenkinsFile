@@ -31,11 +31,7 @@ pipeline {
                 dir('backend') {
                     sh '''
                         . venv/bin/activate
-                        if [ -f tests/testPytest.py ]; then
-                            pytest tests/ --html=report_bd.html --self-contained-html || true
-                        else
-                            echo "Nenhum testPytest.py encontrado, pulando testes"
-                        fi
+                        pytest tests/ --html=report_bd.html --self-contained-html || true
                     '''
                 }
             }
