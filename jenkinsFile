@@ -45,6 +45,7 @@ pipeline {
                 dir("${BACKEND_DIR}") {   // garante que está em /backend
                     sh '''
                         . venv/bin/activate
+                        export TESTING=1
                         pytest tests/ \
                             --html=report_bd.html \
                             --self-contained-html \
