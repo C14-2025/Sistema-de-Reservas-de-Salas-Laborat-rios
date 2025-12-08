@@ -106,4 +106,31 @@ pipeline {
             echo "Pipeline finalizada"
         }
     }
+       post {
+        always {
+            echo "Pipeline finalizada"
+
+            script {
+                def buildStatus = currentBuild.currentResult
+                def buildUser = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')[0]?.userId ?: 'Github User'
+                
+                emailext (
+                    subject: "Pipeline ${buildStatus}: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                    body: """
+                        <p>Pipeline do projeto de Reservas de Salas.</p>
+                        <p>Projeto: ${env.JOB_NAME}</p>
+                        <p>Build Number: ${env.BUILD_NUMBER}</p>
+                        <p>Build Status: ${buildStatus}</p>
+                        <p>Started by: ${buildUser}</p>
+                        <p>Build URL: <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>
+                    """,
+                    to: 'romulocoutinhobeluco@gmail.com',
+                    from: 'romulocoutinhobeluco@gmail.com',
+                    replyTo: 'romulocoutinhobeluco@gmail.com',
+                    mimeType: 'text/html',
+                    attachmentsPattern: 'trivyfs.txt'
+                )
+            }
+        }
+    }
 }
