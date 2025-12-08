@@ -42,10 +42,10 @@ pipeline {
 
         stage('Backend - Testes Unitários + HTML') {
             steps {
-                dir("${WORKSPACE}") {
+                dir("${BACKEND_DIR}") {   // garante que está em /backend
                     sh '''
-                        . backen/venv/bin/activate
-                        pytest backend/tests/ \
+                        . venv/bin/activate
+                        pytest tests/ \
                             --html=report_bd.html \
                             --self-contained-html \
                             --css=report_style.css
@@ -68,6 +68,7 @@ pipeline {
                 }
             }
         }
+    
 
         stage('Frontend - Instalar Dependências') {
             steps {
