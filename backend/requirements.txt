@@ -14,4 +14,4 @@ coverage==7.6.4
 pytest-html==4.1.1 
 py==1.11.0
 mongomock==4.1.2
-
+setuptools>=65.0.0 
