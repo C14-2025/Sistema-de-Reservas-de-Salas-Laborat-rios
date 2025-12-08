@@ -2,10 +2,10 @@ pipeline {
     agent any
 
     options {
-        timestamps()                             // horários no log
-        ansiColor('xterm')                       // cores no console
-        buildDiscarder(logRotator(numToKeepStr: '10')) // guarda só os 10 últimos builds
-        disableConcurrentBuilds()                // evita dois builds rodando ao mesmo tempo
+        timestamps()                             
+        ansiColor('xterm')                       
+        buildDiscarder(logRotator(numToKeepStr: '10')) 
+        disableConcurrentBuilds()
     }
 
     environment {
@@ -42,10 +42,10 @@ pipeline {
 
         stage('Backend - Testes Unitários + HTML') {
             steps {
-                dir("${BACKEND_DIR}") {
+                dir("${WORKSPACE}") {
                     sh '''
-                        . venv/bin/activate
-                        pytest tests/ \
+                        . backen/venv/bin/activate
+                        pytest backend/tests/ \
                             --html=report_bd.html \
                             --self-contained-html \
                             --css=report_style.css
@@ -55,10 +55,8 @@ pipeline {
 
             post {
                 always {
-                    // guarda o HTML como artefato
                     archiveArtifacts artifacts: 'backend/report_bd.html', allowEmptyArchive: true
 
-                    // publica o HTML em "Report BD" na tela do build
                     publishHTML([
                         allowMissing: true,
                         alwaysLinkToLastBuild: true,
@@ -102,7 +100,6 @@ pipeline {
 
             post {
                 always {
-                    // publica o resultado JUnit no Jenkins
                     junit 'frontend/test-results/vitest-results.xml'
                 }
             }
