@@ -101,11 +101,6 @@ pipeline {
         }
     }
 
-    post {
-        always {
-            echo "Pipeline finalizada"
-        }
-    }
        post {
         always {
             echo "Pipeline finalizada"
