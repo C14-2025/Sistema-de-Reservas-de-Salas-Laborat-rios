@@ -21,8 +21,7 @@ pipeline {
                 checkout scm
             }
         }
-
-        // OPCIONAL: instalar deps em paralelo
+        
         stage('Instalar Dependências') {
             parallel {
                 stage('Backend - Setup venv e Dependências') {
@@ -58,7 +57,6 @@ pipeline {
             }
         }
 
-        // AQUI OS TESTES RODAM EM PARALELO
         stage('Testes em Paralelo') {
             parallel {
 
@@ -77,7 +75,6 @@ pipeline {
                     }
                     post {
                         always {
-                            // caminho relativo à raiz do workspace
                             archiveArtifacts artifacts: 'backend/report_bd.html', allowEmptyArchive: true
 
                             publishHTML([
@@ -107,7 +104,6 @@ pipeline {
                     }
                     post {
                         always {
-                            // caminho a partir da raiz do workspace
                             junit 'frontend/test-results/vitest-results.xml'
                         }
                     }
