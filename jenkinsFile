@@ -2,9 +2,9 @@ pipeline {
     agent any
 
     options {
-        timestamps()                             
-        ansiColor('xterm')                       
-        buildDiscarder(logRotator(numToKeepStr: '10')) 
+        timestamps()
+        ansiColor('xterm')
+        buildDiscarder(logRotator(numToKeepStr: '10'))
         disableConcurrentBuilds()
     }
 
@@ -22,87 +22,95 @@ pipeline {
             }
         }
 
-        stage('Backend - Setup venv e Dependências') {
-            steps {
-                dir("${BACKEND_DIR}") {
-                    sh '''
-                        # cria venv só se não existir
-                        if [ ! -d "venv" ]; then
-                          python3 -m venv venv
-                        fi
+        // OPCIONAL: instalar deps em paralelo
+        stage('Instalar Dependências') {
+            parallel {
+                stage('Backend - Setup venv e Dependências') {
+                    steps {
+                        dir("${BACKEND_DIR}") {
+                            sh '''
+                                if [ ! -d "venv" ]; then
+                                  python3 -m venv venv
+                                fi
 
-                        . venv/bin/activate
+                                . venv/bin/activate
 
-                        python -m pip install --upgrade pip
-                        pip install -r requirements.txt
-                    '''
+                                python -m pip install --upgrade pip
+                                pip install -r requirements.txt
+                            '''
+                        }
+                    }
+                }
+
+                stage('Frontend - Instalar Dependências') {
+                    steps {
+                        dir("${FRONTEND_DIR}") {
+                            sh '''
+                                if [ -f package-lock.json ]; then
+                                    npm ci
+                                else
+                                    npm install
+                                fi
+                            '''
+                        }
+                    }
                 }
             }
         }
 
-        stage('Backend - Testes Unitários + HTML') {
-            steps {
-                dir("${BACKEND_DIR}") {   // garante que está em /backend
-                    sh '''
-                        . venv/bin/activate
-                        export TESTING=1
-                        pytest tests/ \
-                            --html=report_bd.html \
-                            --self-contained-html \
-                            --css=report_style.css
-                    '''
+        // AQUI OS TESTES RODAM EM PARALELO
+        stage('Testes em Paralelo') {
+            parallel {
+
+                stage('Backend - Testes Unitários + HTML') {
+                    steps {
+                        dir("${BACKEND_DIR}") {
+                            sh '''
+                                . venv/bin/activate
+                                export TESTING=1
+                                pytest tests/ \
+                                    --html=report_bd.html \
+                                    --self-contained-html \
+                                    --css=report_style.css
+                            '''
+                        }
+                    }
+                    post {
+                        always {
+                            // caminho relativo à raiz do workspace
+                            archiveArtifacts artifacts: 'backend/report_bd.html', allowEmptyArchive: true
+
+                            publishHTML([
+                                allowMissing: true,
+                                alwaysLinkToLastBuild: true,
+                                keepAll: true,
+                                reportDir: 'backend',
+                                reportFiles: 'report_bd.html',
+                                reportName: 'Report BD'
+                            ])
+                        }
+                    }
                 }
-            }
 
-            post {
-                always {
-                    archiveArtifacts artifacts: 'backend/report_bd.html', allowEmptyArchive: true
+                stage('Frontend - Testes (Vitest XML)') {
+                    steps {
+                        dir("${FRONTEND_DIR}") {
+                            sh '''
+                                mkdir -p test-results
 
-                    publishHTML([
-                        allowMissing: true,
-                        alwaysLinkToLastBuild: true,
-                        keepAll: true,
-                        reportDir: 'backend',
-                        reportFiles: 'report_bd.html',
-                        reportName: 'Report BD'
-                    ])
-                }
-            }
-        }
-    
-
-        stage('Frontend - Instalar Dependências') {
-            steps {
-                dir("${FRONTEND_DIR}") {
-                    sh '''
-                        if [ -f package-lock.json ]; then
-                            npm ci
-                        else
-                            npm install
-                        fi
-                    '''
-                }
-            }
-        }
-
-        stage('Frontend - Testes (Vitest XML)') {
-            steps {
-                dir("${FRONTEND_DIR}") {
-                    sh '''
-                        mkdir -p test-results
-
-                        # roda vitest uma vez só, já gerando o JUnit
-                        npx vitest run \
-                            --reporter=default \
-                            --reporter=junit \
-                            --outputFile=test-results/vitest-results.xml
-                    '''
-                }
-            }
-
-            post {
-                always {
-                    junit 'frontend/test-results/vitest-results.xml'
+                                npx vitest run \
+                                    --reporter=default \
+                                    --reporter=junit \
+                                    --outputFile=test-results/vitest-results.xml
+                            '''
+                        }
+                    }
+                    post {
+                        always {
+                            // caminho a partir da raiz do workspace
+                            junit 'frontend/test-results/vitest-results.xml'
+                        }
+                    }
                 }
             }
         }
