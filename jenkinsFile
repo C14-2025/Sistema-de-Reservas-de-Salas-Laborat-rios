@@ -26,31 +26,35 @@ pipeline {
             }
         }
 
-        stage('Testes Unitários - Backend') {
-    steps {
-        dir('backend') {
-            sh '''
-                . venv/bin/activate
-                mkdir -p test-results
-                if [ -f tests/test_pytest.py ]; then
-                    pytest tests/ --junitxml=test-results/backend-results.xml || true
-                else
-                    echo "Nenhum testPytest.py encontrado, pulando testes"
-                fi
-            '''
-        }
-    }
+        stage('Testes Unitários - Banco de Dados e API') {
+            steps {
+                dir('backend') {
+                    sh '''
+                        . venv/bin/activate
+                        if [ -f tests/test_tests.py ]; then
+                            pytest tests/ --html=report_bd.html --self-contained-html || true
+                        else
+                            echo "Nenhum testPytest.py encontrado, pulando testes"
+                        fi
+                    '''
+                }
+            }
 
-    post {
-        always {
-            
-            junit 'backend/test-results/backend-results.xml'
+            post {
+                always {
+                    archiveArtifacts artifacts: 'backend/report_bd.html', allowEmptyArchive: true
 
-          
-            archiveArtifacts artifacts: 'backend/test-results/**', allowEmptyArchive: true
+                    publishHTML([
+                        allowMissing: true,
+                        alwaysLinkToLastBuild: true,
+                        keepAll: true,
+                        reportDir: 'backend',
+                        reportFiles: 'report_bd.html',
+                        reportName: 'Report BD'
+                    ])
+                }
+            }
         }
-    }
-}
 
         stage('Frontend - Instalar Dependências') {
             steps {
