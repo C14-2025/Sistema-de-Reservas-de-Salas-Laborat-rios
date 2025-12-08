@@ -57,15 +57,19 @@ pipeline {
         }
 
         stage('Frontend - Instalar Dependências') {
-            steps {
-                dir('frontend') {
-                    sh '''
-                        rm -rf node_modules package-lock.json
-                        npm install
-                    '''
-                }
+    steps {
+        dir('frontend') {
+            cache(maxCacheSize: 2, caches: [
+                path('./node_modules'),
+                path('./.npm')
+            ]) {
+                sh '''
+                    npm ci
+                '''
             }
         }
+    }
+}
 
         stage('Frontend - Testes') {
             steps {
