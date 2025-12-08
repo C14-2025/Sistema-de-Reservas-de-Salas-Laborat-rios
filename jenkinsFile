@@ -31,7 +31,10 @@ pipeline {
                 dir('backend') {
                     sh '''
                         . venv/bin/activate
-                        pytest tests/ --html=report_bd.html --self-contained-html || true
+                        pytest tests/ \
+                            --html=report_bd.html\
+                            --self-contained-html\
+                            --css=report_style.css || true
                     '''
                 }
             }

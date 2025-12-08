@@ -1,0 +1,25 @@
+body {
+    font-family: "Segoe UI", Arial, sans-serif;
+    font-size: 14px;
+    background-color: #f4f6fb;
+}
+
+#environment, #results-table {
+    border-radius: 6px;
+    padding: 10px;
+    background-color: #ffffff;
+    border: 1px solid #d0d7e2;
+}
+
+h1 {
+    color: #0b5fff;
+    font-size: 22px;
+}
+
+.passed {
+    background-color: #e6ffed !important;
+}
+
+.failed, .error {
+    background-color: #ffe6e6 !important;
+}
