@@ -56,13 +56,13 @@ pipeline {
             }
         }
 
-        stage('Frontend - Instalar Dependências') {
+       stage('Frontend - Instalar Dependências') {
     steps {
         dir('frontend') {
-            cache(maxCacheSize: 2, caches: [
-                path('./node_modules'),
-                path('./.npm')
-            ]) {
+            cache(
+                key: "npm-cache-${env.JOB_NAME}",
+                path: "node_modules"
+            ) {
                 sh '''
                     npm ci
                 '''
