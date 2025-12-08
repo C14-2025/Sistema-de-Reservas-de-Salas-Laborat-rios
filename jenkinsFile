@@ -32,10 +32,9 @@ pipeline {
                     sh '''
                         . venv/bin/activate
                         if [ -f tests/test_tests.py ]; then
-                            mkdir -p test-results
-                            pytest tests/ --html=report_bd.html --self-contained-html --junit-xml=test-results/pytest-results.xml || true
+                            pytest tests/ --html=report_bd.html --self-contained-html || true
                         else
-                            echo "Nenhum test_tests.py encontrado, pulando testes"
+                            echo "Nenhum testPytest.py encontrado, pulando testes"
                         fi
                     '''
                 }
@@ -43,7 +42,7 @@ pipeline {
 
             post {
                 always {
-                    archiveArtifacts artifacts: 'backend/report_bd.html,backend/test-results/pytest-results.xml', allowEmptyArchive: true
+                    archiveArtifacts artifacts: 'backend/report_bd.html', allowEmptyArchive: true
 
                     publishHTML([
                         allowMissing: true,
@@ -53,8 +52,6 @@ pipeline {
                         reportFiles: 'report_bd.html',
                         reportName: 'Report BD'
                     ])
-
-                    junit 'backend/test-results/pytest-results.xml'
                 }
             }
         }
