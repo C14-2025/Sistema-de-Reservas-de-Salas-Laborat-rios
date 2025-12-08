@@ -32,7 +32,7 @@ pipeline {
             sh '''
                 . venv/bin/activate
                 mkdir -p test-results
-                if [ -f tests/testPytest.py ]; then
+                if [ -f tests/test_pytest.py ]; then
                     pytest tests/ --junitxml=test-results/backend-results.xml || true
                 else
                     echo "Nenhum testPytest.py encontrado, pulando testes"
