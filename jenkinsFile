@@ -13,110 +13,122 @@ pipeline {
             }
         }
 
-        stage('Backend - Setup venv e Instalar Dependências') {
-            steps {
-                dir('backend') {
-                    sh '''
-                        python3 -m venv venv
-                        . venv/bin/activate
-                        pip install --upgrade pip
-                        pip install -r requirements.txt
-                    '''
+        stage('Backend e Frontend em Paralelo') {
+            parallel {
+
+                stage('Backend') {
+                    stages {
+
+                        stage('Backend - Setup venv e Instalar Dependências') {
+                            steps {
+                                dir('backend') {
+                                    sh '''
+                                        python3 -m venv venv
+                                        . venv/bin/activate
+                                        pip install --upgrade pip
+                                        pip install -r requirements.txt
+                                    '''
+                                }
+                            }
+                        }
+
+                        stage('Testes Unitários - Banco de Dados e API') {
+                            steps {
+                                dir('backend') {
+                                    sh '''
+                                        . venv/bin/activate
+                                        if [ -f tests/testPytest.py ]; then
+                                            pytest tests/ --html=report_bd.html --self-contained-html || true
+                                        else
+                                            echo "Nenhum testPytest.py encontrado, pulando testes"
+                                        fi
+                                    '''
+                                }
+                            }
+
+                            post {
+                                always {
+                                    archiveArtifacts artifacts: 'backend/report_bd.html', allowEmptyArchive: true
+
+                                    publishHTML([
+                                        allowMissing: true,
+                                        alwaysLinkToLastBuild: true,
+                                        keepAll: true,
+                                        reportDir: 'backend',
+                                        reportFiles: 'report_bd.html',
+                                        reportName: 'Report BD'
+                                    ])
+                                }
+                            }
+                        }
+                    }
+                }
+
+                
+                stage('Frontend') {
+                    stages {
+
+                        stage('Frontend - Instalar Dependências') {
+                            steps {
+                                dir('frontend') {
+                                    sh 'npm ci'
+                                }
+                            }
+                        }
+
+                        stage('Frontend - Testes') {
+                            steps {
+                                dir('frontend') {
+                                    sh 'npm run test'
+                                }
+                            }
+                        }
+
+                        stage('Frontend - Testes (Vitest XML)') {
+                            steps {
+                                dir('frontend') {
+                                    sh '''
+                                        mkdir -p test-results
+                                        npx vitest run --reporter=junit --outputFile=test-results/vitest-results.xml
+                                    '''
+                                }
+                            }
+
+                            post {
+                                always {
+                                    junit 'frontend/test-results/vitest-results.xml'
+                                }
+                            }
+                        }
+
+                        stage('Frontend - Build') {
+                            steps {
+                                dir('frontend') {
+                                    sh 'npm run build'
+                                }
+                            }
+                        }
+                    }
                 }
             }
-        }
-
-        stage('Testes Unitários - Banco de Dados e API') {
-            steps {
-                dir('backend') {
-                    sh '''
-                        . venv/bin/activate
-                        if [ -f tests/testPytest.py ]; then
-                            pytest tests/ --html=report_bd.html --self-contained-html || true
-                        else
-                            echo "Nenhum testPytest.py encontrado, pulando testes"
-                        fi
-                    '''
-                }
-            }
-
-            post {
-                always {
-                    archiveArtifacts artifacts: 'backend/report_bd.html', allowEmptyArchive: true
-
-                    publishHTML([
-                        allowMissing: true,
-                        alwaysLinkToLastBuild: true,
-                        keepAll: true,
-                        reportDir: 'backend',
-                        reportFiles: 'report_bd.html',
-                        reportName: 'Report BD'
-                    ])
-                }
-            }
-        }
-
-       stage('Frontend - Instalar Dependências') {
-    steps {
-        dir('frontend') {
-            sh '''
-                npm ci
-            '''
         }
     }
-}
 
-
-        stage('Frontend - Testes') {
-            steps {
-                dir('frontend') {
-                    sh 'npm run test'
-                }
-            }
-        }
-
-        stage('Frontend - Testes (Vitest XML)') {
-            steps {
-                dir('frontend') {
-                    sh '''
-                        mkdir -p test-results
-                        npx vitest run --reporter=junit --outputFile=test-results/vitest-results.xml
-                    '''
-                }
-            }
-
-            post {
-                always {
-                    junit 'frontend/test-results/vitest-results.xml'
-                }
-            }
-        }
-
-        stage('Frontend - Build') {
-            steps {
-                dir('frontend') {
-                    sh 'npm run build'
-                }
-            }
-        }
-    }
-
-       post {
+   
+    post {
         always {
-        
-
             script {
                 def buildStatus = currentBuild.currentResult
                 def buildUser = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')[0]?.userId ?: 'Github User'
-                
-                emailext (
+
+                emailext(
                     subject: "Pipeline ${buildStatus}: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                     body: """
                         <p>Pipeline do projeto de Reservas de Salas.</p>
                         <p>Projeto: ${env.JOB_NAME}</p>
-                        <p>Build Number: ${env.BUILD_NUMBER}</p>
+                        <p>Número da Build: ${env.BUILD_NUMBER}</p>
                         <p>Build Status: ${buildStatus}</p>
-                        <p>Started by: ${buildUser}</p>
+                        <p>Criado por: ${buildUser}</p>
                         <p>Build URL: <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>
                     """,
                     to: 'romulocoutinhobeluco@gmail.com',
