@@ -103,7 +103,7 @@ pipeline {
 
        post {
         always {
-            echo "Pipeline finalizada"
+        
 
             script {
                 def buildStatus = currentBuild.currentResult
